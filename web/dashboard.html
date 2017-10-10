@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Rhinometer</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap multiselect CSS -->
+    <link rel="stylesheet" href="http://davidstutz.github.io/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" type="text/css">
+
+    <!-- Our CSS -->
+    <style>
+      body { padding-top: 10px }
+      .pre-rhino { border: 0; background-color: transparent; text-align: center; }
+      .pre-rhino pre { border: 0; background-color: transparent; display: inline-block; text-align: left; padding-top: 150px; }
+      #rhino-1, #rhino-2 { display: none; }
+    </style>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- Bootstrap multiselect JavaScript -->
+    <script src="http://davidstutz.github.io/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <ul class="nav nav-tabs col-md-12">
+          <div class="col-md-3">
+            <form class="input-group" id="search_keyword_form">
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                  <span id="search_type_text">Context</span> <span class="caret"></span>
+                </button>
+                <ul id="search_type_control" class="dropdown-menu">
+                  <li><a href="#">Context</a></li>
+                  <li><a href="#">Database</a></li>
+                </ul>
+              </div>
+              <input type="text" id="search_keyword" class="form-control" placeholder='Enter context name here'>
+              <div class="input-group-btn">
+              <button type="submit" class="btn btn-default">
+                <span class="glyphicon glyphicon-search"></span>
+              </button>
+              </div>
+            </form>
+          </div> <!-- Search keyword col 3 -->
+          <div class="col-md-3">
+            <div class="input-group">
+              <select id="search_result_dropdown" class="btn" multiple="multiple" disabled>
+              </select>
+            </div>
+          </div> <!-- Search result dropdown col 3 -->
+          <li class="pull-right"><a href="#">Queries</a></li>
+          <li class="pull-right"><a href="#">Events</a></li>
+          <li class="active pull-right"><a href="#">Overview</a></li>
+        </ul>
+        <main class="col-md-12" role="loading-screen">
+          <div class="pre-rhino" id="rhino-0">
+            <pre class="pre-rhino">
+                  ,-.             __
+                  ,'   `---.___.---'  `.
+                ,'   ,-                 `-._
+              ,'    /                       \
+           ,\/     /     Welcome to         \\
+       )`._)>)     |         Rhinometer      \\
+       `>,'    _   \                  /       |\
+         )      \   |   |            |        |\\
+.   ,   /        \  |    `.          |        | ))
+\`. \`-'          )-|      `.        |        /((
+ \ `-`  .a`     _/ ;\ _     )`-.___.--\      /  `'
+  `._         ,'    \`j`.__/        \  `.    \
+    / ,    ,'       _)\   /`        _) ( \   /
+    \__   /        /nn_) (         /nn__\_) (
+      `--'           /nn__\             /nn__\
+            </pre>
+          </div>
+          <div class="pre-rhino" id="rhino-1">
+            <pre class="pre-rhino">
+                  ,-.             __
+                  ,'   `---.___.---'  `.
+                ,'   ,-                 `-._
+              ,'    /                       \
+           ,\/     /     LOADING...         \\
+       )`._)>)     |                         \\
+       `>,'    _   \                  /       |\
+         )      \   |   |            |        |\\
+.   ,   /        \  |    `.          |        | ))
+\`. \`-'          )-|      `.        |        /((
+ \ `-`  .a`     _/ ;\ _     )`-.___.--\      /  `'
+  `._         ,'    \`j`.__/        \  `.    \
+    / ,    ,'       _)\   /`        _) ( \   /
+    \__   /        /nn_) (         /nn__\_) (
+      `--'           /nn__\             /nn__\
+            </pre>
+          </div>
+          <div class="pre-rhino" id="rhino-2">
+            <pre class="pre-rhino">
+                  ,-.             __
+                  ,'   `---.___.---'  `.
+                ,'   ,-                 `-._
+              ,'    /                       \
+           ,\/     /     LOADING..          \\
+       )`._)>)     |                         \\
+       `>,'    _   \                  /       |\
+         )      \   |   |            |        |\|
+.   ,   /        \  |    `.          |        |))
+\`. \`-'          )-|      `.        |       _((  
+ \ `-`  .o`     _/ ;\ _     /`-.___.--\     /  `'
+  `._         ,'    \`j`.__)         \ `.  /
+    / ,    ,'        \\   /           \(/ /
+    \__   /         _./) /n\         _/) (n\
+      `--'         /nn__\           /nn__\
+            </pre>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script src="mainui.js"></script>
+  </body>
+</html>
