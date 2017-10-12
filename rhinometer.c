@@ -71,7 +71,7 @@ static int answer_to_connection(void *cls, struct MHD_Connection *connection,
 
     /* =================== INDEX PAGE =================== */
     if (url[strlen(url) - 1] == '/') {
-        response = serve_static_requests(connection, "dashboard.html", "text/html");
+        response = serve_static_requests(connection, "index.html", "text/html");
         ret = (response == NULL) ? 404 : 200;
     /* =================== DYNAMIC =================== */
     } else if (strcmp(datasource, "get_databases_by_context") == 0) {
