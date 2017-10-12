@@ -80,6 +80,12 @@ static int answer_to_connection(void *cls, struct MHD_Connection *connection,
     } else if (strcmp(datasource, "get_contexts_by_database") == 0) {
         response = serve_dynamic_requests(get_contexts_by_database, connection, error, sizeof(error));
         ret = (response == NULL) ? 500 : 200;
+    } else if (strcmp(datasource, "get_database_list") == 0) {
+        response = serve_dynamic_requests(get_database_list, connection, error, sizeof(error));
+        ret = (response == NULL) ? 500 : 200;
+    } else if (strcmp(datasource, "get_database_details") == 0) {
+        response = serve_dynamic_requests(get_database_details, connection, error, sizeof(error));
+        ret = (response == NULL) ? 500 : 200;
     /* =================== STATIC =================== */
     } else if (strlen(datasource) > 3 && strcasecmp(&datasource[strlen(datasource) - 3], ".js") == 0) {
         response = serve_static_requests(connection, datasource, "application/javascript");
@@ -136,8 +142,9 @@ static void ignore_sigpipe ()
 int main ()
 {
     struct MHD_Daemon *daemon;
+    char cmd;
 
-    ignore_sigpipe ();
+    ignore_sigpipe();
 
     daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG | MHD_USE_EPOLL_LINUX_ONLY, PORT, NULL, NULL,
             &answer_to_connection, NULL, MHD_OPTION_END);
@@ -145,7 +152,11 @@ int main ()
         return 1;
 
 
-    (void) getchar();
+    while (1) {
+        cmd = getchar();
+        if (cmd == 'q')
+            break;
+    }
 
     MHD_stop_daemon(daemon);
     return 0;

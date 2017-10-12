@@ -11,12 +11,18 @@
     <!-- Bootstrap multiselect CSS -->
     <link rel="stylesheet" href="http://davidstutz.github.io/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" type="text/css">
 
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
     <!-- Our CSS -->
     <style>
+      * { font-family: 'Open Sans', sans-serif; }
       body { padding-top: 10px }
       .pre-rhino { border: 0; background-color: transparent; text-align: center; }
       .pre-rhino pre { border: 0; background-color: transparent; display: inline-block; text-align: left; padding-top: 150px; }
-      #rhino-1, #rhino-2 { display: none; }
+      .rhino-1, .rhino-2 { display: none; }
+      .submodule { margin-top: 20px; }
+      #placeholder { display: none; }
+      .table-bordered-clear-right { border-right: 0px }
     </style>
 
     <!-- Bootstrap core JavaScript -->
@@ -30,7 +36,7 @@
   <body>
     <div class="container-fluid">
       <div class="row">
-        <ul class="nav nav-tabs col-md-12">
+        <ul class="nav nav-tabs col-md-12" id="tabs">
           <div class="col-md-3">
             <form class="input-group" id="search_keyword_form">
               <div class="input-group-btn">
@@ -56,12 +62,13 @@
               </select>
             </div>
           </div> <!-- Search result dropdown col 3 -->
+          <li class="pull-right"><a href="#">Databases</a></li>
           <li class="pull-right"><a href="#">Queries</a></li>
           <li class="pull-right"><a href="#">Events</a></li>
           <li class="active pull-right"><a href="#">Overview</a></li>
         </ul>
-        <main class="col-md-12" role="loading-screen">
-          <div class="pre-rhino" id="rhino-0">
+        <main class="col-md-12" id="loading-screen">
+          <div class="pre-rhino rhino-0">
             <pre class="pre-rhino">
                   ,-.             __
                   ,'   `---.___.---'  `.
@@ -80,7 +87,7 @@
       `--'           /nn__\             /nn__\
             </pre>
           </div>
-          <div class="pre-rhino" id="rhino-1">
+          <div class="pre-rhino rhino-1">
             <pre class="pre-rhino">
                   ,-.             __
                   ,'   `---.___.---'  `.
@@ -99,7 +106,7 @@
       `--'           /nn__\             /nn__\
             </pre>
           </div>
-          <div class="pre-rhino" id="rhino-2">
+          <div class="pre-rhino rhino-2">
             <pre class="pre-rhino">
                   ,-.             __
                   ,'   `---.___.---'  `.
@@ -119,6 +126,7 @@
             </pre>
           </div>
         </main>
+        <main id="placeholder"></main>
       </div>
     </div>
     <script src="mainui.js"></script>
