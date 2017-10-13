@@ -16,11 +16,12 @@
     <!-- Our CSS -->
     <style>
       * { font-family: 'Open Sans', sans-serif; }
-      body { padding-top: 10px }
+      body { padding-top: 10px; }
+      html, body { height: 100%; }
+      .submodule { margin-top: 10px; }
       .pre-rhino { border: 0; background-color: transparent; text-align: center; }
       .pre-rhino pre { border: 0; background-color: transparent; display: inline-block; text-align: left; padding-top: 150px; }
       .rhino-1, .rhino-2 { display: none; }
-      .submodule { margin-top: 20px; }
       #placeholder { display: none; }
       .table-bordered-clear-right { border-right: 0px }
     </style>
@@ -70,7 +71,7 @@
         <main class="col-md-12" id="loading-screen">
           <div class="pre-rhino rhino-0">
             <pre class="pre-rhino">
-                  ,-.             __
+                    ,-.             __
                   ,'   `---.___.---'  `.
                 ,'   ,-                 `-._
               ,'    /                       \
@@ -89,7 +90,7 @@
           </div>
           <div class="pre-rhino rhino-1">
             <pre class="pre-rhino">
-                  ,-.             __
+                    ,-.             __
                   ,'   `---.___.---'  `.
                 ,'   ,-                 `-._
               ,'    /                       \
@@ -108,7 +109,7 @@
           </div>
           <div class="pre-rhino rhino-2">
             <pre class="pre-rhino">
-                  ,-.             __
+                    ,-.             __
                   ,'   `---.___.---'  `.
                 ,'   ,-                 `-._
               ,'    /                       \
@@ -117,7 +118,7 @@
        `>,'    _   \                  /       |\
          )      \   |   |            |        |\|
 .   ,   /        \  |    `.          |        |))
-\`. \`-'          )-|      `.        |       _((  
+\`. \`-'          )-|      `.        |       _/(  
  \ `-`  .o`     _/ ;\ _     /`-.___.--\     /  `'
   `._         ,'    \`j`.__)         \ `.  /
     / ,    ,'        \\   /           \(/ /
@@ -130,5 +131,6 @@
       </div>
     </div>
     <script src="mainui.js"></script>
+    <script src="util.js"></script>
   </body>
 </html>

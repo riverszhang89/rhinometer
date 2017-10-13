@@ -2,7 +2,9 @@
 var loading = {
     helper: true,
     timer: null,
+    prev: null,
     start: function(id){
+      loading.prev = $(id);
       $(id).show();
       $(id + ' .rhino-0').hide();
       loading.helper = true;
@@ -17,11 +19,11 @@ var loading = {
         loading.helper = !loading.helper;
       }, 200);
     },
-    stop: function(){
+    stop: function(id){
       if (loading.timer == null)
         return;
       clearInterval(loading.timer);
-      $('#loading-screen').hide();
+      loading.prev.hide();
       loading.timer = null;
     }
 };

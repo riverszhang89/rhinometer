@@ -55,6 +55,15 @@ cson_value *get_database_list(struct MHD_Connection *conn, char *error, size_t s
             cson_object_set(obj, "version", cson_value_new_string(row, strlen(row)));
         }
 
+        rc = cdb2_run_statement(hndl, "SELECT CAST(SUM(bytes) AS TEXT) FROM comdb2_tablesizes");
+        /* db is offline. continue. */
+        if (rc != 0)
+            goto next;
+
+        for (j = 0; (rc = cdb2_next_record(hndl)) == CDB2_OK; ++j) {
+            row = cdb2_column_value(hndl, 0);
+            cson_object_set(obj, "size", cson_value_new_string(row, strlen(row)));
+        }
 next:
         rc = 0;
         tok = strtok_r(NULL, ",", &last);

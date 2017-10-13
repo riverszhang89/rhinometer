@@ -1,0 +1,12 @@
+#database_nav {
+  position:fixed;
+  border-right: 1px solid #000;
+  height: 100%;
+  padding-right: 0px;
+}
+#websend span { font-family: monospace, Courier; }
+.dbpopover {
+  min-height:40vh;
+  max-width: none;
+  z-index: 1;
+}

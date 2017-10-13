@@ -74,17 +74,22 @@ static int answer_to_connection(void *cls, struct MHD_Connection *connection,
         response = serve_static_requests(connection, "index.html", "text/html");
         ret = (response == NULL) ? 404 : 200;
     /* =================== DYNAMIC =================== */
+    /* =================== MISC =================== */
     } else if (strcmp(datasource, "get_databases_by_context") == 0) {
         response = serve_dynamic_requests(get_databases_by_context, connection, error, sizeof(error));
         ret = (response == NULL) ? 500 : 200;
     } else if (strcmp(datasource, "get_contexts_by_database") == 0) {
         response = serve_dynamic_requests(get_contexts_by_database, connection, error, sizeof(error));
         ret = (response == NULL) ? 500 : 200;
+    /* =================== DATABASES =================== */
     } else if (strcmp(datasource, "get_database_list") == 0) {
         response = serve_dynamic_requests(get_database_list, connection, error, sizeof(error));
         ret = (response == NULL) ? 500 : 200;
     } else if (strcmp(datasource, "get_database_details") == 0) {
         response = serve_dynamic_requests(get_database_details, connection, error, sizeof(error));
+        ret = (response == NULL) ? 500 : 200;
+    } else if (strcmp(datasource, "websend") == 0) {
+        response = serve_dynamic_requests(websend, connection, error, sizeof(error));
         ret = (response == NULL) ? 500 : 200;
     /* =================== STATIC =================== */
     } else if (strlen(datasource) > 3 && strcasecmp(&datasource[strlen(datasource) - 3], ".js") == 0) {
