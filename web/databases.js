@@ -440,9 +440,11 @@ var databases = {
         if ($(this).attr('pop') == 1)
           return false;
 
-        $('#databases_tbody tr').attr('pop', 0).remove('hovered');
+        $('#databases_tbody tr').attr('pop', 0).removeClass('hovered');
         $(this).addClass('hovered');
         $(this).attr('pop', 1);
+
+        /* Always detach loading screen before wiping out the view. */
         databases.detached_rhino = $('#loading-screen-databases').detach();
         $('#detail-view').html('');
 

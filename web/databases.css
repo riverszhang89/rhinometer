@@ -19,6 +19,10 @@
   padding-left: 15px;
 }
 
+#databases_tbody tr {
+  border-right: 1px solid #DFDFDF;
+}
+
 #databases_tbody tr.hovered {
   background-color:#FFF;
   border-right: 1px solid #FFF;
