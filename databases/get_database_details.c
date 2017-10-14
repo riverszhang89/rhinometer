@@ -76,17 +76,21 @@ cson_value *get_database_details(struct MHD_Connection *conn, char *error, size_
             cson_array_set(subarr, ii, cson_value_new_string(row, strlen(row)));
         }
 
-        if (cson_object_get(obj, "master") == NULL)
-            goto next;
-
-        rc = cdb2_run_statement(hndl, "SELECT CAST(SUM(bytes) AS TEXT) FROM comdb2_tablesizes");
+        rc = cdb2_run_statement(hndl, "exec procedure sys.cmd.send('memstat group_by_name')");
         /* machine offline. continue. */
         if (rc != 0)
             goto next;
 
-        for (ii = 0; (rc = cdb2_next_record(hndl)) == CDB2_OK; ++ii) {
+        arrv = cson_value_new_array();
+        cson_object_set(obj, "memstat", arrv);
+        subarr = cson_value_get_array(arrv);
+
+        for (ii = 0; (rc = cdb2_next_record(hndl)) == CDB2_OK; ) {
             row = cdb2_column_value(hndl, 0);
-            cson_object_set(obj, "size", cson_value_new_string(row, strlen(row)));
+            if (strncmp(row, "------", 6) != 0) {
+              cson_array_set(subarr, ii, cson_value_new_string(row, strlen(row)));
+              ++ii;
+            }
         }
 next:
         rc = 0;

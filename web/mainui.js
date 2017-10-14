@@ -89,6 +89,9 @@ $('#search_result_dropdown').multiselect({
   inheritClass: true
 });
 
+/* Adjust the position of placeholder */
+$('#placeholder').css('margin-top', $('#tabs').height() + 10 + 'px');
+
 /* ================= TABS ================ */
 var submodule;
 $('#tabs>li>a').click(function(e){

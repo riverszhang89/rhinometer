@@ -1,12 +1,62 @@
 #database_nav {
   position:fixed;
-  border-right: 1px solid #000;
+  background-color: #f7f7f7;
   height: 100%;
   padding-right: 0px;
 }
+
+#database_nav .layer {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top:0;
+  left:0;
+  border-right: 1px solid #DFDFDF;
+  z-index:-1
+}
+
+#database_nav table th {
+  padding-left: 15px;
+}
+
+#databases_tbody tr.hovered {
+  background-color:#FFF;
+  border-right: 1px solid #FFF;
+  border-bottom: 1px solid #DDD;
+}
+#databases_tbody tr:hover {
+  background-color:#FFF;
+  border-right: 1px solid #FFF;
+}
 #websend span { font-family: monospace, Courier; }
-.dbpopover {
-  min-height:40vh;
-  max-width: none;
-  z-index: 1;
+
+#detail-view {
+  float: right;
+  padding-top: 10px;
+  padding-right: 0px;
+}
+
+#detail-view .row{
+  padding-left: 0px;
+  padding-right: 0px;
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+#nsql-chart, #memory-chart, #rdwr-chart, #hr-chart { height: 300px; }
+
+.well-dbcard {
+  padding: 0 5px;
+}
+
+.well-dbcard .well {
+  background-color: #F9F9F9;
+}
+
+.well-dbcard .caption {
+  color: #AAA;
+}
+
+.well-dbcard .content {
+  color: #595959;
 }
