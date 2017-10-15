@@ -12,23 +12,19 @@ var databases = {
     }
     /* The detail view now owns the loading screen.
        Don't destroy it. */
+    console.log('Generating screen.');
     loading.stop();
     databases.gen_badges();
     databases.gen_host_table();
     databases.gen_memory();
     databases.gen_pg_hitrate();
+    console.log('Screen generated.');
   },
   gen_hr: function(){
     $('#detail-view').append($('<div class="row col-md-12"><hr/></div>'));
   },
   gen_badges: function(){
     var badges_html = '<div class="col-md-12 row">';
-
-    /* Cache size card */
-    badges_html += '<div class="col-md-3 well-dbcard">';
-    badges_html += '<div class="well well-sm"><h5 class="caption">Cache Size</h5>';
-    badges_html += '<h3 class="content">' + databases.stats[0].cachesize;
-    badges_html += '</h3></div></div>';
 
     var tothitrate = 0,
         totpgrd = 0,
@@ -58,6 +54,12 @@ var databases = {
     badges_html += '<div class="well well-sm"><h5 class="caption">Page Reads/Writes';
     badges_html += '<span class="label label-warning pull-right">Total</span></h5>';
     badges_html += '<h3 class="content">' + totpgrd + ' / ' + totpgwr;
+    badges_html += '</h3></div></div>';
+
+    /* Cache size card */
+    badges_html += '<div class="col-md-3 well-dbcard">';
+    badges_html += '<div class="well well-sm"><h5 class="caption">Cache Size</h5>';
+    badges_html += '<h3 class="content">' + databases.stats[0].cachesize;
     badges_html += '</h3></div></div>';
 
     /* Cache hitrate card */
@@ -399,7 +401,7 @@ var databases = {
     $('#placeholder').show();
     loading.start('#loading-screen-databases');
     
-    var local_databases = (search_type_text == 'Context') ? $('#search_result_dropdown').val() : $('#search_keyword').attr('q');
+    var local_databases = (actual_search_type == 1) ? $('#search_result_dropdown').val() : $('#search_keyword').attr('q');
     console.log('Databases are ' + local_databases);
     
     $.ajax({

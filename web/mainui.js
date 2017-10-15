@@ -30,19 +30,23 @@ var loading = {
 
 /* ================= SEARCH BAR ================ */
 var search_type_text = 'Context';
+/* 1 - Context; 2 - Database */
+var actual_search_type = 1;
 
-$('#search_type_control>li>a').click(function(){
+$('#search_type_control>li>a').click(function(e){
   /* User changes search type. */
   search_type_text = $(this).text();
   console.log('User changes search type to ' + search_type_text);
   $('#search_type_text').html(search_type_text);
   $('#search_keyword').attr('placeholder', 'Enter ' + search_type_text.toLocaleLowerCase() + " name here");
+  e.preventDefault();
 });
 
 $('#search_keyword_form').submit(function(){
   /* User searches keyword. */
   var search_keyword = $('#search_keyword').val();
   console.log('User searches ' + search_type_text + ' ' + search_keyword);
+  actual_search_type = (search_type_text[0] - 'B');
 
   $('#search_result_dropdown').multiselect('destroy');
   $('#search_result_dropdown').removeClass('btn-danger').html('').append('<option selected="selected">Loading...</option>').multiselect({
@@ -55,7 +59,7 @@ $('#search_keyword_form').submit(function(){
   });
 
   $.ajax({
-      url: search_type_text == 'Context' ? 'get_databases_by_context' : 'get_contexts_by_database',
+      url: (actual_search_type == 1) ? 'get_databases_by_context' : 'get_contexts_by_database',
       data: 'q=' + search_keyword
     }).done(function(data){
       if (data.a.length == 0 ) {
