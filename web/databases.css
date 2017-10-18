@@ -32,6 +32,7 @@
   background-color:#FFF;
   border-right: 1px solid #FFF;
 }
+
 #websend span { font-family: monospace, Courier; }
 
 #detail-view {
@@ -40,27 +41,11 @@
   padding-right: 0px;
 }
 
-#detail-view .row{
+#detail-view .row {
   padding-left: 0px;
   padding-right: 0px;
   margin-right: 0px;
   margin-left: 0px;
 }
 
-#nsql-chart, #memory-chart, #rdwr-chart, #hr-chart { height: 300px; }
-
-.well-dbcard {
-  padding: 0 5px;
-}
-
-.well-dbcard .well {
-  background-color: #F9F9F9;
-}
-
-.well-dbcard .caption {
-  color: #AAA;
-}
-
-.well-dbcard .content {
-  color: #595959;
-}
+#reqctx-chart, #reqrctx-chart { height: 360px; }

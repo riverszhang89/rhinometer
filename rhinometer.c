@@ -110,6 +110,7 @@ static int answer_to_connection(void *cls, struct MHD_Connection *connection,
     if (ret == 200) {
         rc = MHD_queue_response(connection, MHD_HTTP_OK, response);
     } else {
+        fprintf(stderr, "! Backend error: %s\n", error);
         if (ret == 400)
             snprintf(errortoclnt, sizeof(errortoclnt), "%s: %s", e400, error);
         else if (ret == 404)

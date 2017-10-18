@@ -1,0 +1,22 @@
+.c3graph { height: 300px; }
+
+.well-dbcard {
+  padding: 0 5px;
+}
+
+.well-dbcard .well {
+  background-color: #F9F9F9;
+}
+
+.well-dbcard .caption {
+  color: #AAA;
+}
+
+.well-dbcard .content {
+  color: #595959;
+}
+
+.well-dbcard .dt-bootstrap .row > div {
+  padding-left: 0px;
+  padding-right: 0px;
+}
