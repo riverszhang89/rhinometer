@@ -1,4 +1,12 @@
 util = {
+  get_today_date: function(){
+    var ret = new Date();
+    ret.setHours(0);
+    ret.setMinutes(0);
+    ret.setSeconds(0);
+    ret.setMilliseconds(0);
+    return ret;
+  },
   size_to_human_readable: function(sz) {
     var isz = parseInt(sz);
     if (isz < 1024)
@@ -19,6 +27,30 @@ util = {
       return isz.toFixed(2) + ' ZiB';
     if ((isz /= 1024) < 1024)
       return isz.toFixed(2) + ' YiB';
+
+    return '42';
+  },
+
+  num_to_human_readable: function(num) {
+    var inum = parseInt(num);
+    if (inum < 1000)
+      return inum;
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 'K';
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 'M';
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 'B';
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 'T';
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 'q';
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 'Q';
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 's';
+    if ((inum /= 1000) < 1000)
+      return inum.toFixed(3) + 'S';
 
     return '42';
   },

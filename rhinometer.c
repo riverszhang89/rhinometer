@@ -91,6 +91,10 @@ static int answer_to_connection(void *cls, struct MHD_Connection *connection,
     } else if (strcmp(datasource, "websend") == 0) {
         response = serve_dynamic_requests(websend, connection, error, sizeof(error));
         ret = (response == NULL) ? 500 : 200;
+    /* =================== CONTEXTS =================== */
+    } else if (strcmp(datasource, "get_context_details") == 0) {
+        response = serve_dynamic_requests(get_context_details, connection, error, sizeof(error));
+        ret = (response == NULL) ? 500 : 200;
     /* =================== STATIC =================== */
     } else if (strlen(datasource) > 3 && strcasecmp(&datasource[strlen(datasource) - 3], ".js") == 0) {
         response = serve_static_requests(connection, datasource, "application/javascript");

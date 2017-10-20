@@ -46,6 +46,7 @@
   padding-right: 0px;
   margin-right: 0px;
   margin-left: 0px;
+  visibility: hidden;
 }
 
 #rpcrngs, #rrpcrngs { margin-left: 15px; }

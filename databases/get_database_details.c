@@ -52,7 +52,9 @@ cson_value *get_database_details(struct MHD_Connection *conn, char *error, size_
         cdb2_bind_index(hndl, i, CDB2_CSTRING, tok, strlen(tok));
         tok = strtok_r(NULL, ",", &last);
     }
-    snprintf(query + wr, sizeof(query) - wr, ") ORDER BY start");
+    wr += snprintf(query + wr, sizeof(query) - wr, ") AND dbname=@db");
+    cdb2_bind_index(hndl, i, CDB2_CSTRING, q, strlen(q));
+    snprintf(query + wr, sizeof(query) - wr, " ORDER BY start");
 
     /* Get 2-week perf data */
     rc = cdb2_run_statement(hndl, query);

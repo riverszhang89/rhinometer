@@ -7,7 +7,11 @@ var loading = {
       loading.prev = $(id);
       $(id).show();
       $(id + ' .rhino-0').hide();
+
+      $(id + ' .rhino-1').show();
+      $(id + ' .rhino-2').hide();
       loading.helper = true;
+
       loading.timer = setInterval(function(){
         if (loading.helper) {
           $(id + ' .rhino-1').hide();
@@ -40,6 +44,7 @@ $('#search_type_control>li>a').click(function(e){
   e.preventDefault();
 });
 
+var clickable = false;
 $('#search_keyword_form').submit(function(){
   /* User searches keyword. */
   var search_keyword = $('#search_keyword').val();
@@ -52,7 +57,11 @@ $('#search_keyword_form').submit(function(){
     inheritClass: true,
     enableFiltering: true,
     includeSelectAllOption: true,
+    onDropdownShow: function(e){
+      clickable = false;
+    },
     onDropdownHidden: function(e){
+      clickable = true;
       $('#tabs>li.active>a').click();
     }
   });
@@ -98,6 +107,10 @@ $('#placeholder').css('margin-top', $('#tabs').height() + 10 + 'px');
 /* ================= TABS ================ */
 var submodule;
 $('#tabs>li>a').click(function(e){
+  /* Can't proceed if not clickable. */
+  if (!clickable)
+    return true;
+
   /* Can't proceed if no keyword. */
   if ($('#search_keyword').val() == '') {
     alert('Enter a keyword to begin.');

@@ -20,6 +20,15 @@ var databases = {
   reqctx_chart: null,
   reqrctx_chart: null,
 
+  clean_slate: function(){
+    databases.memstat = {};
+    databases.stats = [];
+    databases.todaynctx = {};
+    databases.yesterdaynctx = {};
+    databases.weeknctx = {};
+    databases.lastweeknctx = {};
+  },
+
   gen_db_ui: function(){
     if (databases.stats.length == 0) {
       alert('Did not receive any data from server.');
@@ -28,13 +37,14 @@ var databases = {
     /* The detail view now owns the loading screen.
        Don't destroy it. */
     console.log('Generating screen.');
-    loading.stop();
     databases.gen_badges();
-    databases.gen_host_table();
     databases.gen_contexts();
+    databases.gen_host_table();
     databases.gen_memory();
     databases.gen_pg_hitrate();
     console.log('Screen generated.');
+    loading.stop();
+    $('#detail-view .row').css('visibility', 'visible');
   },
   gen_hr: function(){
     $('#detail-view').append($('<div class="row col-md-12"><hr/></div>'));
@@ -50,15 +60,12 @@ var databases = {
         week,
         lastweek,
         todaynctx = 0,
+        yesterdaynctx = 0,
         weeknctx = 0,
+        lastweeknctx = 0,
         len, i;
 
-    var curr = new Date();
-    curr.setHours(0);
-    curr.setMinutes(0);
-    curr.setSeconds(0);
-    curr.setMilliseconds(0);
-
+    var curr = util.get_today_date();
     today = curr.getTime() / 1000;
 
     curr.setDate(curr.getDate() - 1);
@@ -74,26 +81,50 @@ var databases = {
       var stime = databases.perf[i].starttime;
       if (stime >= today) {
         if (databases.todaynctx[databases.perf[i].context] == null)
-          databases.todaynctx[databases.perf[i].context] = 1;
+          databases.todaynctx[databases.perf[i].context] = databases.perf[i].context_count;
+        else
+          databases.todaynctx[databases.perf[i].context] += databases.perf[i].context_count;
       } else if (stime >= yesterday) {
         if (databases.yesterdaynctx[databases.perf[i].context] == null)
-          databases.yesterdaynctx[databases.perf[i].context] = 1;
+          databases.yesterdaynctx[databases.perf[i].context] = databases.perf[i].context_count;
+        else
+          databases.yesterdaynctx[databases.perf[i].context] += databases.perf[i].context_count;
       }
 
       if (stime >= week) {
         if (databases.weeknctx[databases.perf[i].context] == null)
-          databases.weeknctx[databases.perf[i].context] = 1;
+          databases.weeknctx[databases.perf[i].context] = databases.perf[i].context_count;
+        else
+          databases.weeknctx[databases.perf[i].context] += databases.perf[i].context_count;
       } else if (stime >= lastweek) {
         if (databases.lastweeknctx[databases.perf[i].context] == null)
-          databases.lastweeknctx[databases.perf[i].context] = 1;
+          databases.lastweeknctx[databases.perf[i].context] = databases.perf[i].context_count;
+        else
+          databases.lastweeknctx[databases.perf[i].context] += databases.perf[i].context_count;
       }
     }
 
-    for (var key in databases.todaynctx)
+    var todaynreq = yesterdaynreq = weeknreq = lastweeknreq = 0;
+
+    for (var key in databases.todaynctx) {
       ++todaynctx;
+      todaynreq += databases.todaynctx[key];
+    }
       
-    for (var key in databases.weeknctx)
+    for (var key in databases.yesterdaynctx) {
+      ++yesterdaynctx;
+      yesterdaynreq += databases.yesterdaynctx[key];
+    }
+      
+    for (var key in databases.weeknctx) {
       ++weeknctx;
+      weeknreq += databases.weeknctx[key];
+    }
+
+    for (var key in databases.lastweeknctx) {
+      ++lastweeknctx;
+      lastweeknreq += databases.lastweeknctx[key];
+    }
 
     for (i = 0, len = databases.stats.length; i != len; ++i) {
       var stat = databases.stats[i];
@@ -110,14 +141,25 @@ var databases = {
     badges_html += '<div class="well well-sm"><h5 class="caption">Contexts';
     badges_html += '<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
     badges_html += '<button type="button" class="btn btn-default active" id="ctxbadgebtn-day" ';
-    badges_html += 'val="' + todaynctx + '"';
+    badges_html += 'val="' + todaynctx + '" cmp="' + yesterdaynctx +'"';
     badges_html += '>Today</button>';
     badges_html += '<button type="button" class="btn btn-default" id="ctxbadgebtn-week" ';
-    badges_html += 'val="' + weeknctx + '"';
+    badges_html += 'val="' + weeknctx + '" cmp="' + lastweeknctx +'"';
     badges_html += '>7-Day</button>';
     badges_html += '</div></h5>';
-    badges_html += '<h3 class="content">' + todaynctx;
-    badges_html += '</h3></div></div>';
+    badges_html += '<h3 class="content"></h3></div></div>';
+
+    badges_html += '<div class="col-md-2 well-dbcard">';
+    badges_html += '<div class="well well-sm"><h5 class="caption">Requests';
+    badges_html += '<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    badges_html += '<button type="button" class="btn btn-default active" id="reqbadgebtn-day" ';
+    badges_html += 'val="' + todaynreq + '" cmp="' + yesterdaynreq +'"';
+    badges_html += '>Today</button>';
+    badges_html += '<button type="button" class="btn btn-default" id="reqbadgebtn-week" ';
+    badges_html += 'val="' + weeknreq + '" cmp="' + lastweeknreq +'"';
+    badges_html += '>7-Day</button>';
+    badges_html += '</div></h5>';
+    badges_html += '<h3 class="content"></h3></div></div>';
 
     /* db size card */
     badges_html += util.gen_badge(util.gen_header_h5('Database Size', null, null),
@@ -129,11 +171,6 @@ var databases = {
                                   databases.stats[0].cachesize,
                                   2);
 
-    /* # SQL card */
-    badges_html += util.gen_badge(util.gen_header_h5('SQL Requests', 'Sum', 'warning'),
-                                  totnsql,
-                                  2);
-
     /* Page rd/wr card */
     badges_html += util.gen_badge(util.gen_header_h5('Page Reads/Writes', 'Sum', 'warning'),
                                   totpgrd + ' / ' + totpgwr,
@@ -143,13 +180,41 @@ var databases = {
     badges_html += util.gen_badge(util.gen_header_h5('Cache Hitrate', 'Average', 'info'),
                                   (tothitrate / len).toFixed(2) + '%',
                                   2);
+
+    badges_html += '</div>';
     $('#detail-view').append($(badges_html));
 
     /* Events */
     $('#ctxbadgebtn-day, #ctxbadgebtn-week').click(function(e){
       $('#ctxbadgebtn-day, #ctxbadgebtn-week').removeClass('active');
-      $(this).addClass('active').parent().parent().parent().find('.content').html($(this).attr('val'));
+
+      var val = parseInt($(this).attr('val'));
+          cmp = parseInt($(this).attr('cmp'));
+      var pricetag = '' + val + '<span class="pricetag label pull-right label-';
+      pricetag += (val >= cmp) ? 'success' : 'danger';
+      pricetag += '">';
+      pricetag += (val >= cmp) ? '+' : '';
+      pricetag += (val - cmp);
+      pricetag += '</span>';
+      $(this).addClass('active').parent().parent().parent().find('.content').html(pricetag);
     });
+
+    $('#reqbadgebtn-day, #reqbadgebtn-week').click(function(e){
+      $('#reqbadgebtn-day, #reqbadgebtn-week').removeClass('active');
+
+      var val = parseInt($(this).attr('val'));
+          cmp = parseInt($(this).attr('cmp'));
+      var pricetag = '' + util.num_to_human_readable(val);
+      pricetag += '<span class="pricetag label pull-right label-';
+      pricetag += (val >= cmp) ? 'success' : 'danger';
+      pricetag += '">';
+      pricetag += (val >= cmp) ? '+' : '';
+      pricetag += (cmp == 0 || val == 0) ? '&infin;' : (((val / cmp - 1) * 100).toFixed(2) + '%');
+      pricetag += '</span>';
+      $(this).addClass('active').parent().parent().parent().find('.content').html(pricetag);
+    });
+
+    $('#ctxbadgebtn-day, #reqbadgebtn-day').click();
   },
 
   gen_host_table: function() {
@@ -157,26 +222,6 @@ var databases = {
     var card = $(util.gen_card_12());
 
     var host_table_html = '';
-    host_table_html += '<div class="col-md-6 clear-padl">';
-    host_table_html += '<h5 class="caption">Nodes</h5>';
-    host_table_html += '<table class="table table-hover">';
-
-    for (var i = 0, len = databases.stats.length; i != len; ++i) {
-      var stat = databases.stats[i];
-      host_table_html += '<tr><td>' + stat.host;
-      if (stat.master)
-        host_table_html += ' <span class="label label-primary">master</span>';
-      if (!stat.online)
-        host_table_html += ' <span class="label label-danger">offline</span>';
-      else {
-        host_table_html += ' <span class="label label-success">online</span>';
-        host_table_html += ' <a href="#" title="send" host="' + stat.host;
-        host_table_html += '"><span class="glyphicon glyphicon-send pull-right"></span></a>';
-      }
-      host_table_html += '</td></tr>';
-    }
-
-    host_table_html += '</table></div>';
 
     host_table_html += '<div class="col-md-6 clear-padl">';
     host_table_html += '<h5 class="caption">Contexts';
@@ -229,9 +274,29 @@ var databases = {
       host_table_html += '<th>' + (i < len2 ? (i + 1) : '') + '</th><td>' + cell2 + '</td></th></tr>';
     }
     host_table_html += '</tbody></table>';
-
     host_table_html += '</div>';
 
+    /* node table */
+    host_table_html += '<div class="col-md-6 clear-padl">';
+    host_table_html += '<h5 class="caption">Nodes</h5>';
+    host_table_html += '<table class="table table-hover">';
+
+    for (var i = 0, len = databases.stats.length; i != len; ++i) {
+      var stat = databases.stats[i];
+      host_table_html += '<tr><td>' + stat.host;
+      if (stat.master)
+        host_table_html += ' <span class="label label-primary">master</span>';
+      if (!stat.online)
+        host_table_html += ' <span class="label label-danger">offline</span>';
+      else {
+        host_table_html += ' <span class="label label-success">online</span>';
+        host_table_html += ' <a href="#" title="send" host="' + stat.host;
+        host_table_html += '"><span class="glyphicon glyphicon-send pull-right"></span></a>';
+      }
+      host_table_html += '</td></tr>';
+    }
+
+    host_table_html += '</table></div>';
     /* End the row */
     card.find('.content').append(host_table_html);
     $('#detail-view').append(card);
@@ -535,7 +600,9 @@ var databases = {
 
       /* sort by hostname */
       databases.stats.sort(function(a, b) {
-        return a.host - b.host;
+        if (a.host < b.host) return -1;
+        if (a.host > b.host) return 1;
+        return 0;
       });
 
       console.log('Done parsing.');
@@ -569,7 +636,9 @@ var databases = {
 
       /* Sort by dbname */
       data.a.sort(function(a, b){
-        return a.database - b.database;
+        if (a.database < b.database) return -1;
+        if (a.database > b.database) return 1;
+        return 0;
       });
     
       tbody = '';
@@ -589,12 +658,13 @@ var databases = {
       $('#databases_tbody').html(tbody);
       $('#databases_tbody tr').click(function(e){
         if ($(this).attr('pop') == 1)
-          return false;
+          return;
 
         $('#databases_tbody tr').attr('pop', 0).removeClass('hovered');
         $(this).addClass('hovered');
         $(this).attr('pop', 1);
 
+        databases.clean_slate();
         /* Always detach loading screen before wiping out the view. */
         databases.detached_rhino = $('#loading-screen-databases').detach();
         $('#detail-view').html('');
@@ -856,11 +926,7 @@ var databases = {
 
       /* Create a new date everytime. Don't want to mess 
          with javascript's weird variable scope. */
-      var currd = new Date();
-      currd.setHours(0);
-      currd.setMinutes(0);
-      currd.setSeconds(0);
-      currd.setMilliseconds(0);
+      var currd = util.get_today_date();
       var end = currd.getTime() / 1000, start;
 
       if (show == 'today') {
