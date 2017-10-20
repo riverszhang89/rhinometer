@@ -18,7 +18,7 @@ var contexts = {
     contexts.lastweekndb = {};
   },
 
-  gen_badges: function(){
+  gen_overview: function(){
 
     /* parsing */
     var curr = util.get_today_date(),
@@ -250,9 +250,303 @@ var contexts = {
     $('#dbbadgebtn-day, #reqbadgebtn-day').click();
   },
 
+  gen_databases: function(e){
+    var card = $(util.gen_card_12());
+    var html = '';
+    html += '<h5 class="caption">Daily Requests per Context';
+
+    html += '<div id="rpcrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<button type="button" class="btn btn-default active" show="today">';
+    html += 'Today';
+    html += '</button>';
+    html += '<button type="button" class="btn btn-default" show="7day">';
+    html += '7-Day';
+    html += '</button>';
+    html += '<button type="button" class="btn btn-default" show="14day">';
+    html += '14-Day';
+    html += '</button>';
+    html += '</div>';
+
+    html += '<div id="rpcbtns" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<button type="button" class="btn btn-default active" show="line">';
+    html += 'Line';
+    html += '</button>';
+    html += '<button type="button" class="btn btn-default" show="bar">';
+    html += 'Bar';
+    html += '</button>';
+    html += '<button type="button" class="btn btn-default" show="stacked">';
+    html += 'Stacked';
+    html += '</button>';
+    html += '</div> ';
+
+    html += '</h5>';
+    card.find('.content').append(html).append(util.gen_graph('reqctx-chart')).append('<hr/>');
+    $('#detail-view').append(card);
+
+    html = '';
+    html += '<h5 class="caption">Request Rate per Context';
+
+    html += '<div id="rrpcrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<button type="button" class="btn btn-default active" show="today">';
+    html += 'Today';
+    html += '</button>';
+    html += '<button type="button" class="btn btn-default" show="7day">';
+    html += '7-Day';
+    html += '</button>';
+    html += '<button type="button" class="btn btn-default" show="14day">';
+    html += '14-Day';
+    html += '</button>';
+    html += '</div>';
+
+    html += '<div id="rrpcbtns" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<button type="button" class="btn btn-default active" show="step">';
+    html += 'Step';
+    html += '</button>';
+    html += '<button type="button" class="btn btn-default" show="area-step">';
+    html += 'Area Step';
+    html += '</button>';
+    html += '</div></h5>';
+    card.find('.content').append(html).append(util.gen_graph('reqrctx-chart'));
+    $('#contexts-detail-view').append(card);
+
+    /* Charts */
+
+    var curr = new Date();
+    curr.setHours(0);
+    curr.setMinutes(0);
+    curr.setSeconds(0);
+    curr.setMilliseconds(0);
+    curr.setDate(curr.getDate() - 13);
+
+    /* Construct my 2-d array */
+    var columnmap = {};
+    for (var key in databases.weeknctx) {
+      if (columnmap[key] == null)
+        columnmap[key] = [];
+    }
+
+    for (var key in databases.lastweeknctx) {
+      if (columnmap[key] == null)
+        columnmap[key] = [];
+    }
+
+    var xvals = {}, rowvals = {}, xsvals = {}, columnvals = [];
+    var grouparr = [];
+    for (var key in columnmap) {
+      var subarray = new Array(14);
+      for (var i = 0; i != 14; ++i)
+        subarray[i] = 0;
+      columnmap[key] = subarray;
+      grouparr.push(key);
+
+      xvals[key] = ['x' + key];
+      rowvals[key] = [key];
+      xsvals[key] = 'x' + key;
+      columnvals.push(xvals[key], rowvals[key]);
+    }
+
+    /* date array */
+    var dates = new Array(14);
+    for (var i = 0; i != 14; ++i) {
+      dates[i] = curr.getTime() / 1000;
+      curr.setDate(curr.getDate() + 1);
+    }
+
+    /* Now fill in data */
+    for (var i = 0, len = databases.perf.length; i != len; ++i) {
+      var ctx = databases.perf[i].context;
+      var cnt = databases.perf[i].context_count;
+      var stime = databases.perf[i].starttime;
+      var etime = databases.perf[i].endtime;
+      var rate = 60 * cnt / (etime - stime);
+
+      /* look up the value in `dates' array so we know the position to add the count to. */
+      var j = 13;
+      for (; j >= 0; --j)
+        if (stime >= dates[j])
+          break;
+
+      if (j >= 0)
+        columnmap[ctx][j] += cnt;
+
+      xvals[ctx].push(stime);
+      rowvals[ctx].push(rate);
+    }
+
+    /* Transform to what C3 wants */
+
+    dates.unshift('x');
+    var columns = [dates];
+    for (var key in columnmap) {
+      columnmap[key].unshift(key);
+      columns.push(columnmap[key]);
+    }
+
+    databases.reqctx_chart = c3.generate({
+       bindto: '#reqctx-chart',
+       padding: {
+         right: 15
+       },
+       data: {
+         x: 'x',
+         columns: columns
+       },
+       axis: {
+         x: {
+           tick: {
+             format: function(x) {
+               return new Date(x * 1000).toISOString().slice(0, 10);
+             }
+           }
+         }
+       },
+       subchart: {
+        show: true
+       },
+       zoom: {
+         enabled: true,
+         rescale: true,
+         extent: [1, 100]
+       },
+       transition: {
+         duration: 0
+       }
+    });
+
+    databases.reqrctx_chart = c3.generate({
+       bindto: '#reqrctx-chart',
+       padding: {
+         right: 15
+       },
+       data: {
+         xs: xsvals,
+         columns: columnvals,
+         type: 'step'
+       },
+       tooltip: {
+         format: {
+           value: function(value, ratio, id, index) {
+             return value.toFixed(2);
+           }
+         }
+       },
+       line: {
+         step: {
+           type: 'step-after'
+         }
+       },
+       axis: {
+         x: {
+           tick: {
+             format: function(x) {
+               return new Date(x * 1000).toISOString().slice(0, 19);
+             }
+           }
+         },
+         y: {
+           label: 'requests/minute'
+         }
+       },
+       subchart: {
+        show: true
+       },
+       zoom: {
+         enabled: true,
+         rescale: true,
+         extent: [1, 100]
+       },
+       transition: {
+         duration: 0
+       }
+    });
+
+
+    /* Events */
+
+    /* Chart styles */
+    $('#rpcbtns button').click(function(){
+      $('#rpcbtns button').removeClass('active');
+      $(this).addClass('active');
+      if ($(this).attr('show') != 'stacked') {
+        databases.reqctx_chart.transform($(this).attr('show'));
+        databases.reqctx_chart.groups([]);
+      } else {
+        databases.reqctx_chart.transform('bar');
+        databases.reqctx_chart.groups([grouparr]);
+      }
+    });
+
+    $('#rrpcbtns button').click(function(){
+      $('#rrpcbtns button').removeClass('active');
+      $(this).addClass('active');
+      databases.reqrctx_chart.transform($(this).attr('show'));
+    });
+
+    /* Chart ranges */
+
+    $('#rpcrngs button').click(function(){
+      $('#rpcrngs button').removeClass('active');
+      $(this).addClass('active');
+      var show = $(this).attr('show');
+
+      /* Create a new date everytime. Don't want to mess 
+         with javascript's weird variable scope. */
+      var currd = util.get_today_date();
+      var end = currd.getTime() / 1000, start;
+
+      if (show == 'today') {
+        /* today is already the last entry, so include yesterday as well. */
+        start = currd.setDate(currd.getDate() - 1) / 1000;
+      } else if (show == '7day') {
+        start = currd.setDate(currd.getDate() - 6) / 1000;
+      } else if (show == '14day') {
+        start = currd.setDate(currd.getDate() - 13) / 1000;
+      } else {
+        alert('Unknown date range.');
+        return;
+      }
+      databases.reqctx_chart.zoom([start, end]);
+    });
+
+    $('#rpcrngs button.active').click();
+
+    $('#rrpcrngs button').click(function(){
+      $('#rrpcrngs button').removeClass('active');
+      $(this).addClass('active');
+      var show = $(this).attr('show');
+
+      /* Create a new date everytime. Don't want to mess 
+         with javascript's weird variable scope. */
+      var currd = new Date();
+      var end = currd.getTime() / 1000, start;
+      var ealiest = databases.perf[0].starttime;
+      var latest = databases.perf[databases.perf.length - 1].starttime;
+
+      currd.setHours(0);
+      currd.setMinutes(0);
+      currd.setSeconds(0);
+      currd.setMilliseconds(0);
+
+      if (show == 'today') {
+        start = currd.getTime() / 1000;
+      } else if (show == '7day') {
+        start = currd.setDate(currd.getDate() - 6) / 1000;
+      } else if (show == '14day') {
+        start = currd.setDate(currd.getDate() - 13) / 1000;
+      } else {
+        alert('Unknown date range.');
+        return;
+      }
+      databases.reqrctx_chart.zoom([start > ealiest ? start : ealiest, end < latest ? end : latest]);
+    });
+
+    $('#rrpcrngs button.active').click();
+  },
+
   gen_ctx_ui: function(){
     console.log('Generating screen.');
-    contexts.gen_badges();
+    contexts.gen_overview();
+    contexts.gen_databases();
 
     loading.stop();
     $('#contexts-detail-view .row').css('visibility', 'visible');
