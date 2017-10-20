@@ -1,11 +1,11 @@
-#database_nav {
+#contexts_nav {
   position:fixed;
   background-color: #f7f7f7;
   height: 100%;
   padding-right: 0px;
 }
 
-#database_nav .layer {
+#contexts_nav .layer {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -15,33 +15,31 @@
   z-index:-1
 }
 
-#database_nav table th {
+#contexts_nav table th {
   padding-left: 15px;
 }
 
-#databases_tbody tr {
+#contexts_tbody tr {
   border-right: 1px solid #DFDFDF;
 }
 
-#databases_tbody tr.hovered {
+#contexts_tbody tr.hovered {
   background-color:#FFF;
   border-right: 1px solid #FFF;
   border-bottom: 1px solid #DDD;
 }
-#databases_tbody tr:hover {
+#contexts_tbody tr:hover {
   background-color:#FFF;
   border-right: 1px solid #FFF;
 }
 
-#websend span { font-family: monospace, Courier; }
-
-#detail-view {
+#contexts-detail-view {
   float: right;
   padding-top: 10px;
   padding-right: 0px;
 }
 
-#detail-view .row {
+#contexts-detail-view .row {
   padding-left: 0px;
   padding-right: 0px;
   margin-right: 0px;
@@ -51,10 +49,10 @@
 
 #rpcrngs, #rrpcrngs { margin-left: 15px; }
 
-.data-right .dataTables_wrapper {
-  min-height: 320px;
-}
-
 #reqpct-chart {
   height: 320px;
+}
+
+.data-right .dataTables_wrapper {
+  min-height: 320px;
 }

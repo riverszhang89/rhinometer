@@ -19,6 +19,7 @@ var databases = {
   nsql_chart: null,
   reqctx_chart: null,
   reqrctx_chart: null,
+  reqpct_chart: null,
 
   clean_slate: function(){
     databases.memstat = {};
@@ -37,20 +38,16 @@ var databases = {
     /* The detail view now owns the loading screen.
        Don't destroy it. */
     console.log('Generating screen.');
-    databases.gen_badges();
+    databases.gen_overview();
     databases.gen_contexts();
     databases.gen_host_table();
-    databases.gen_memory();
     databases.gen_pg_hitrate();
     console.log('Screen generated.');
     loading.stop();
     $('#detail-view .row').css('visibility', 'visible');
   },
-  gen_hr: function(){
-    $('#detail-view').append($('<div class="row col-md-12"><hr/></div>'));
-  },
-  gen_badges: function(){
-    var badges_html = '<div class="col-md-12 row">';
+
+  gen_overview: function(){
     var tothitrate = 0,
         totpgrd = 0,
         totpgwr = 0,
@@ -136,108 +133,62 @@ var databases = {
       totnsql += stat.nsql;
     }
 
-    /* context card */
-    badges_html += '<div class="col-md-2 well-dbcard">';
-    badges_html += '<div class="well well-sm"><h5 class="caption">Contexts';
-    badges_html += '<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
-    badges_html += '<button type="button" class="btn btn-default active" id="ctxbadgebtn-day" ';
-    badges_html += 'val="' + todaynctx + '" cmp="' + yesterdaynctx +'"';
-    badges_html += '>Today</button>';
-    badges_html += '<button type="button" class="btn btn-default" id="ctxbadgebtn-week" ';
-    badges_html += 'val="' + weeknctx + '" cmp="' + lastweeknctx +'"';
-    badges_html += '>7-Day</button>';
-    badges_html += '</div></h5>';
-    badges_html += '<h3 class="content"></h3></div></div>';
+    var overview_html = '';
 
-    badges_html += '<div class="col-md-2 well-dbcard">';
-    badges_html += '<div class="well well-sm"><h5 class="caption">Requests';
-    badges_html += '<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
-    badges_html += '<button type="button" class="btn btn-default active" id="reqbadgebtn-day" ';
-    badges_html += 'val="' + todaynreq + '" cmp="' + yesterdaynreq +'"';
-    badges_html += '>Today</button>';
-    badges_html += '<button type="button" class="btn btn-default" id="reqbadgebtn-week" ';
-    badges_html += 'val="' + weeknreq + '" cmp="' + lastweeknreq +'"';
-    badges_html += '>7-Day</button>';
-    badges_html += '</div></h5>';
-    badges_html += '<h3 class="content"></h3></div></div>';
+    /* { Request card */
+    overview_html += '<div class="col-md-6 well-dbcard">';
+    overview_html += '  <div class="well well-sm row">';
+    overview_html += '    <div class="content">';
 
-    /* db size card */
-    badges_html += util.gen_badge(util.gen_header_h5('Database Size', null, null),
-                                  util.size_to_human_readable(databases.dbsize),
-                                  2);
+    overview_html += '<h5 class="caption">Requests';
+    overview_html += '<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    overview_html += '<button type="button" class="btn btn-default active" id="reqbadgebtn-day" ';
+    overview_html += 'val="' + todaynreq + '" cmp="' + yesterdaynreq +'"';
+    overview_html += 'show="day"';
+    overview_html += '>Today</button>';
+    overview_html += '<button type="button" class="btn btn-default" id="reqbadgebtn-week" ';
+    overview_html += 'val="' + weeknreq + '" cmp="' + lastweeknreq +'"';
+    overview_html += 'show="week"';
+    overview_html += '>7-Day</button>';
+    overview_html += '</div></h5>';
 
-    /* Cache size card */
-    badges_html += util.gen_badge(util.gen_header_h5('Cache Size', null, null),
-                                  databases.stats[0].cachesize,
-                                  2);
+    overview_html += '<div class="col-md-3 clear-padl data-left"></div>';
+    overview_html += '<div class="col-md-9 clear-padr data-right">';
+    overview_html += '<div class="c3graph" id="reqpct-chart"></div>';
+    overview_html += '</div>';
 
-    /* Page rd/wr card */
-    badges_html += util.gen_badge(util.gen_header_h5('Page Reads/Writes', 'Sum', 'warning'),
-                                  totpgrd + ' / ' + totpgwr,
-                                  2);
+    overview_html += '    </div>';
+    overview_html += '  </div>';
+    overview_html += '</div>';
+    /* End the card } */
 
-    /* Cache hitrate card */
-    badges_html += util.gen_badge(util.gen_header_h5('Cache Hitrate', 'Average', 'info'),
-                                  (tothitrate / len).toFixed(2) + '%',
-                                  2);
+    /* { Context card */
+    overview_html += '<div class="col-md-6 well-dbcard">';
+    overview_html += '  <div class="well well-sm row">';
+    overview_html += '    <div class="content">';
 
-    badges_html += '</div>';
-    $('#detail-view').append($(badges_html));
+    /* header */
+    overview_html += '<h5 class="caption">Contexts';
+    overview_html += '<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    overview_html += '<button type="button" class="btn btn-default active" id="ctxbadgebtn-day" ';
+    overview_html += 'val="' + todaynctx + '" cmp="' + yesterdaynctx +'" ';
+    overview_html += 'show="#ctxtbl-day_wrapper"';
+    overview_html += '>Today</button>';
+    overview_html += '<button type="button" class="btn btn-default" id="ctxbadgebtn-week" ';
+    overview_html += 'val="' + weeknctx + '" cmp="' + lastweeknctx +'" ';
+    overview_html += 'show="#ctxtbl-week_wrapper"';
+    overview_html += '>7-Day</button>';
+    overview_html += '</div></h5>';
 
-    /* Events */
-    $('#ctxbadgebtn-day, #ctxbadgebtn-week').click(function(e){
-      $('#ctxbadgebtn-day, #ctxbadgebtn-week').removeClass('active');
+    /* left */
+    overview_html += '<div class="col-md-3 clear-padl data-left"></div>';
+    /* { right */
+    overview_html += '<div class="col-md-9 clear-padr data-right">';
 
-      var val = parseInt($(this).attr('val'));
-          cmp = parseInt($(this).attr('cmp'));
-      var pricetag = '' + val + '<span class="pricetag label pull-right label-';
-      pricetag += (val >= cmp) ? 'success' : 'danger';
-      pricetag += '">';
-      pricetag += (val >= cmp) ? '+' : '';
-      pricetag += (val - cmp);
-      pricetag += '</span>';
-      $(this).addClass('active').parent().parent().parent().find('.content').html(pricetag);
-    });
-
-    $('#reqbadgebtn-day, #reqbadgebtn-week').click(function(e){
-      $('#reqbadgebtn-day, #reqbadgebtn-week').removeClass('active');
-
-      var val = parseInt($(this).attr('val'));
-          cmp = parseInt($(this).attr('cmp'));
-      var pricetag = '' + util.num_to_human_readable(val);
-      pricetag += '<span class="pricetag label pull-right label-';
-      pricetag += (val >= cmp) ? 'success' : 'danger';
-      pricetag += '">';
-      pricetag += (val >= cmp) ? '+' : '';
-      pricetag += (cmp == 0 || val == 0) ? '&infin;' : (((val / cmp - 1) * 100).toFixed(2) + '%');
-      pricetag += '</span>';
-      $(this).addClass('active').parent().parent().parent().find('.content').html(pricetag);
-    });
-
-    $('#ctxbadgebtn-day, #reqbadgebtn-day').click();
-  },
-
-  gen_host_table: function() {
-    /* Table */
-    var card = $(util.gen_card_12());
-
-    var host_table_html = '';
-
-    host_table_html += '<div class="col-md-6 clear-padl">';
-    host_table_html += '<h5 class="caption">Contexts';
-    host_table_html += '<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
-    host_table_html += '<button type="button" class="btn btn-default active" id="ctxtblbtn-day" ';
-    host_table_html += 'show="#ctxtbl-day_wrapper"';
-    host_table_html += '>Today</button>';
-    host_table_html += '<button type="button" class="btn btn-default" id="ctxtblbtn-week" ';
-    host_table_html += 'show="#ctxtbl-week_wrapper"';
-    host_table_html += '>7-Day</button>';
-    host_table_html += '</div></h5>';
-
-    /* Daily table */
-    host_table_html += '<table class="table table-hover table-bordered" id="ctxtbl-day">';
-    host_table_html += '<thead><tr><th colspan="2">Today</th><th colspan="2">Yesterday</th></tr>';
-    host_table_html += '<tr><th>#</th><th>Context</th><th>#</th><th>Context</th></tr></thead><tbody>';
+    /* { Daily table */
+    overview_html += '<table class="table table-hover table-bordered" id="ctxtbl-day">';
+    overview_html += '<thead><tr><th colspan="2">Today</th><th colspan="2">Yesterday</th></tr>';
+    overview_html += '<tr><th>#</th><th>Context</th><th>#</th><th>Context</th></tr></thead><tbody>';
 
     var rows1 = [], rows2 = [];
     for (var k in databases.todaynctx)
@@ -249,15 +200,15 @@ var databases = {
             i < len1 || i < len2; ++i) {
       var cell1 = i < len1 ? rows1[i] : '',
           cell2 = i < len2 ? rows2[i] : '';
-      host_table_html += '<tr><th>' + (i < len1 ? (i + 1) : '') + '</th><td>' + cell1 + '</td></th>';
-      host_table_html += '<th>' + (i < len2 ? (i + 1) : '') + '</th><td>' + cell2 + '</td></th></tr>';
+      overview_html += '<tr><th>' + (i < len1 ? (i + 1) : '') + '</th><td>' + cell1 + '</td></th>';
+      overview_html += '<th>' + (i < len2 ? (i + 1) : '') + '</th><td>' + cell2 + '</td></th></tr>';
     }
-    host_table_html += '</tbody></table>';
+    overview_html += '</tbody></table>'; /* Daily table } */
 
-    /* Weekly table */
-    host_table_html += '<table class="table table-hover table-bordered" id="ctxtbl-week">';
-    host_table_html += '<thead><tr><th colspan="2">7-Day</th><th colspan="2">8-14 Day</th></tr>';
-    host_table_html += '<tr><th>#</th><th>Context</th><th>#</th><th>Context</th></tr></thead><tbody>';
+    /* { Weekly table */
+    overview_html += '<table class="table table-hover table-bordered" id="ctxtbl-week">';
+    overview_html += '<thead><tr><th colspan="2">7-Day</th><th colspan="2">8-14 Day</th></tr>';
+    overview_html += '<tr><th>#</th><th>Context</th><th>#</th><th>Context</th></tr></thead><tbody>';
 
     rows1 = [];
     rows2 = [];
@@ -270,11 +221,90 @@ var databases = {
             i < len1 || i < len2; ++i) {
       var cell1 = i < len1 ? rows1[i] : '',
           cell2 = i < len2 ? rows2[i] : '';
-      host_table_html += '<tr><th>' + (i < len1 ? (i + 1) : '') + '</th><td>' + cell1 + '</td></th>';
-      host_table_html += '<th>' + (i < len2 ? (i + 1) : '') + '</th><td>' + cell2 + '</td></th></tr>';
+      overview_html += '<tr><th>' + (i < len1 ? (i + 1) : '') + '</th><td>' + cell1 + '</td></th>';
+      overview_html += '<th>' + (i < len2 ? (i + 1) : '') + '</th><td>' + cell2 + '</td></th></tr>';
     }
-    host_table_html += '</tbody></table>';
-    host_table_html += '</div>';
+    overview_html += '</tbody></table>'; /* Weekly table } */
+    overview_html += '</div>'; /* { right */
+
+    overview_html += '    </div>';
+    overview_html += '  </div>';
+    overview_html += '</div>';
+    /* End the card } */
+
+    $('#detail-view').append($(overview_html));
+
+    /* Charts */
+    var piecolumns_day = [], piecolumns_week = [];
+    for (var k in databases.weeknctx)
+      piecolumns_week.push([k, databases.weeknctx[k]]);
+    for (var k in databases.todaynctx)
+      piecolumns_day.push([k, databases.todaynctx[k]]);
+
+    var piecolumns = {};
+    piecolumns.day = piecolumns_day;
+    piecolumns.week = piecolumns_week;
+
+    databases.reqpct_chart = c3.generate({
+      bindto: '#reqpct-chart',
+      data: {
+        columns: [],
+        type: 'pie'
+      }
+    });
+
+    /* DataTables */
+    $('#ctxtbl-day, #ctxtbl-week').DataTable({
+      "pageLength": 4,
+      "lengthMenu": [4, 8, 16, 32, 64]
+    });
+
+    /* Events */
+    $('#ctxbadgebtn-day, #ctxbadgebtn-week').click(function(e){
+      $('#ctxbadgebtn-day, #ctxbadgebtn-week').removeClass('active');
+
+      var val = parseInt($(this).attr('val'));
+          cmp = parseInt($(this).attr('cmp'));
+      var pricetag = '<h3>' + val + '<span class="pricetag label pull-right label-';
+      pricetag += (val >= cmp) ? 'success' : 'danger';
+      pricetag += '">';
+      pricetag += (val >= cmp) ? '+' : '';
+      pricetag += (val - cmp);
+      pricetag += '</span></h3>';
+      $(this).addClass('active').parent().parent().parent().find('.data-left').html(pricetag);
+
+      $('#ctxtbl-day_wrapper, #ctxtbl-week_wrapper').hide();
+      $($(this).addClass('active').attr('show')).show();
+    });
+
+    $('#reqbadgebtn-day, #reqbadgebtn-week').click(function(e){
+      $('#reqbadgebtn-day, #reqbadgebtn-week').removeClass('active');
+
+      var val = parseInt($(this).attr('val'));
+          cmp = parseInt($(this).attr('cmp'));
+      var pricetag = '<h3>' + util.num_to_human_readable(val);
+      pricetag += '<span class="pricetag label pull-right label-';
+      pricetag += (val >= cmp) ? 'success' : 'danger';
+      pricetag += '">';
+      pricetag += (val >= cmp) ? '+' : '';
+      pricetag += (cmp == 0 || val == 0) ? '&infin;' : (((val / cmp - 1) * 100).toFixed(2) + '%');
+      pricetag += '</span><h3>';
+      $(this).addClass('active').parent().parent().parent().find('.data-left').html(pricetag);
+
+      databases.reqpct_chart.unload();
+      databases.reqpct_chart.load({
+        columns: piecolumns[$(this).attr('show')]
+      });
+    });
+
+    $('#ctxbadgebtn-day, #reqbadgebtn-day').click();
+  },
+
+  gen_host_table: function() {
+    /* Table */
+    var card = $(util.gen_card_12());
+
+    var host_table_html = '';
 
     /* node table */
     host_table_html += '<div class="col-md-6 clear-padl">';
@@ -299,21 +329,52 @@ var databases = {
     host_table_html += '</table></div>';
     /* End the row */
     card.find('.content').append(host_table_html);
+    card.find('.content').append(util.gen_graph_card_6('Memstat per Node', 'Current', 'info', 'memory-chart'))
     $('#detail-view').append(card);
 
-    /* DataTables */
-    $('#ctxtbl-day, #ctxtbl-week').DataTable({
-      "pageLength": 5
-    });
+    /* Charts */
+    var groups = [], columns = [];
+    for (var key in databases.memstat) {
+      groups.push(key);
+      var column = databases.memstat[key];
+      column.unshift(key);
+      columns.push(column);
+    }
 
-    /* Events */
-    $('#ctxtblbtn-day, #ctxtblbtn-week').click(function(e){
-      $('#ctxtblbtn-day, #ctxtblbtn-week').removeClass('active');
-      $('#ctxtbl-day_wrapper, #ctxtbl-week_wrapper').hide();
-      $($(this).addClass('active').attr('show')).show();
+    databases.mem_chart = c3.generate({
+       bindto: '#memory-chart',
+       padding: {
+         right: 15
+       },
+       data: {
+         columns: columns,
+         type: 'bar',
+         groups: [groups]
+       },
+       tooltip: {
+         format: {
+           value: function (value, ratio, id, index) {
+             return util.size_to_human_readable(value);
+           }
+         }
+       },
+       axis: {
+         x: {
+           tick: {
+             format: function(idx) {
+               return databases.stats[idx].host;
+             }
+           }
+         },
+         y: {
+           tick: {
+             format: function(d) {
+               return util.size_to_human_readable(d);
+             }
+           }
+         }
+       }
     });
-
-    $('#ctxtblbtn-day').click();
 
     $('#myModal').on('show.bs.modal', function(e){
       databases.term = $('#websend').terminal(function(command) {
@@ -423,93 +484,6 @@ var databases = {
          y: {
            label: {
              text: 'Hit Rate'
-           }
-         }
-       }
-    });
-  },
-
-  gen_memory: function(){
-    var card = $(util.gen_card_12());
-    card.find('.content').append(util.gen_graph_card_6('Memstat per Node', 'Current', 'info', 'memory-chart'))
-                         .append(util.gen_graph_card_6('Requests per Node', 'Current', 'info', 'nsql-chart'));
-    $('#detail-view').append(card);
-
-    /* Charts */
-    var groups = [], columns = [];
-    for (var key in databases.memstat) {
-      groups.push(key);
-      var column = databases.memstat[key];
-      column.unshift(key);
-      columns.push(column);
-    }
-
-    databases.mem_chart = c3.generate({
-       bindto: '#memory-chart',
-       padding: {
-         right: 15
-       },
-       data: {
-         columns: columns,
-         type: 'bar',
-         groups: [groups]
-       },
-       tooltip: {
-         format: {
-           value: function (value, ratio, id, index) {
-             return util.size_to_human_readable(value);
-           }
-         }
-       },
-       axis: {
-         x: {
-           tick: {
-             format: function(idx) {
-               return databases.stats[idx].host;
-             }
-           }
-         },
-         y: {
-           tick: {
-             format: function(d) {
-               return util.size_to_human_readable(d);
-             }
-           }
-         }
-       }
-    });
-
-
-    /* Charts */
-    var column = [];
-    for (var i = 0, len = databases.stats.length; i != len; ++i) {
-      column.push(parseInt(databases.stats[i].nsql));
-    }
-    column.unshift("# SQL");
-
-    databases.nsql_chart = c3.generate({
-       bindto: '#nsql-chart',
-       padding: {
-         right: 15
-       },
-       data: {
-         columns: [column],
-         type: 'bar'
-       },
-       legend: {
-         hide: true
-       },
-       axis: {
-         x: {
-           tick: {
-             format: function(idx) {
-               return databases.stats[idx].host;
-             }
-           }
-         },
-         y: {
-           label: {
-             text: 'Number of SQL Requests'
            }
          }
        }
@@ -688,7 +662,7 @@ var databases = {
   gen_contexts: function(e){
     var card = $(util.gen_card_12());
     var ctx_html = '';
-    ctx_html += '<h5 class="caption">Requests per Context';
+    ctx_html += '<h5 class="caption">Daily Requests per Context';
 
     ctx_html += '<div id="rpcrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
     ctx_html += '<button type="button" class="btn btn-default active" show="today">';
@@ -715,7 +689,7 @@ var databases = {
     ctx_html += '</div> ';
 
     ctx_html += '</h5>';
-    card.find('.content').append(ctx_html).append(util.gen_graph('reqctx-chart'));
+    card.find('.content').append(ctx_html).append(util.gen_graph('reqctx-chart')).append('<hr/>');
     $('#detail-view').append(card);
 
     ctx_html = '';

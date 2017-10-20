@@ -1,29 +1,30 @@
 <main class="col-md-12 submodule">
-  <nav class="col-md-2 nav" id="database_nav">
-    <div class="layer"></div>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Database</th>
-          <td>Version</td>
-        </tr>
-      </thead>
-      <tbody id="databases_tbody">
-      </tbody>
-    </table>
-  </nav>
-  <div class="col-md-10" id="detail-view">
+  <div class="row">
+    <nav class="col-md-2 nav" id="contexts_nav">
+      <div class="layer"></div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Contexts</th>
+          </tr>
+        </thead>
+        <tbody id="contexts_tbody">
+        </tbody>
+      </table>
+    </nav>
+    <div class="col-md-10" id="contexts-detail-view">
+    </div>
   </div>
 </main>
-<main class="col-md-12" id="loading-screen-databases">
+<main class="col-md-12" id="loading-screen-contexts">
   <div class="pre-rhino rhino-1">
     <pre class="pre-rhino">
                     ,-.             __
                   ,'   `---.___.---'  `.
                 ,'   ,-                 `-._
               ,'    /                       \
-           ,\/     /    LOADING             \\
-       )`._)>)     |      DATABASE DATA..    \\
+           ,\/     /   LOADING CONTEXTS..   \\
+       )`._)>)     |                         \\
        `>,'    _   \                  /       |\
          )      \   |   |            |        |\\
 .   ,   /        \  |    `.          |        | ))
@@ -41,8 +42,8 @@
                   ,'   `---.___.---'  `.
                 ,'   ,-                 `-._
               ,'    /                       \
-           ,\/     /    LOADING             \\
-       )`._)>)     |      DATABASE DATA...   \\
+           ,\/     /   LOADING CONTEXTS...  \\
+       )`._)>)     |                         \\
        `>,'    _   \                  /       |\
          )      \   |   |            |        |\|
 .   ,   /        \  |    `.          |        |))
@@ -56,22 +57,6 @@
   </div>
 </main>
 
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">WebSend</h4>
-      </div>
-      <div class="modal-body">
-      <div id="websend"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<link href="databases.css" rel="stylesheet"/>
-<script src="databases.js"></script>
+<!-- CSS, Javascript and other resources go here. -->
+<link href="contexts.css" rel="stylesheet"/>
+<script src="contexts.js"></script>

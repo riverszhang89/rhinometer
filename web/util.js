@@ -90,23 +90,12 @@ util = {
   
   gen_card_12: function() {
     var ret = '';
-    ret += '<div class="col-md-12 row">';
     ret += '<div class="col-md-12 well-dbcard">';
-    ret += '<div class="well well-sm">';
-    ret += '<div class="content row">';
-    ret += '</div></div></div></div>';
-    return ret;
-  },
-  
-  gen_badge: function(header, body, size) {
-    var ret = '';
-    ret += '<div class="col-md-';
-    ret += size;
-    ret += ' well-dbcard">';
-    ret += '<div class="well well-sm">';
-    ret += header
-    ret += '<h3 class="content">' + body;
-    ret += '</h3></div></div>';
+    ret += '  <div class="well well-sm row">';
+    ret += '    <div class="content"></div>';
+    ret += '  </div>';
+    ret += '</div>';
     return ret;
   }
+  
 };
