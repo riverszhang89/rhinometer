@@ -47,7 +47,7 @@
   visibility: hidden;
 }
 
-#rpcrngs, #rrpcrngs { margin-left: 15px; }
+#rpdrngs, #rrpdrngs { margin-left: 15px; }
 
 #reqpct-chart {
   height: 320px;

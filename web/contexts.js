@@ -247,15 +247,15 @@ var contexts = {
       });
     });
 
-    $('#dbbadgebtn-day, #reqbadgebtn-day').click();
+    $('#dbbadgebtn-day, #reqctxbtn-day').click();
   },
 
   gen_databases: function(e){
     var card = $(util.gen_card_12());
     var html = '';
-    html += '<h5 class="caption">Daily Requests per Context';
+    html += '<h5 class="caption">Daily Requests per Database';
 
-    html += '<div id="rpcrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<div id="rpdrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
     html += '<button type="button" class="btn btn-default active" show="today">';
     html += 'Today';
     html += '</button>';
@@ -267,7 +267,7 @@ var contexts = {
     html += '</button>';
     html += '</div>';
 
-    html += '<div id="rpcbtns" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<div id="rpdbtns" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
     html += '<button type="button" class="btn btn-default active" show="line">';
     html += 'Line';
     html += '</button>';
@@ -286,7 +286,7 @@ var contexts = {
     html = '';
     html += '<h5 class="caption">Request Rate per Context';
 
-    html += '<div id="rrpcrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<div id="rrpdrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
     html += '<button type="button" class="btn btn-default active" show="today">';
     html += 'Today';
     html += '</button>';
@@ -298,7 +298,7 @@ var contexts = {
     html += '</button>';
     html += '</div>';
 
-    html += '<div id="rrpcbtns" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
+    html += '<div id="rrpdbtns" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">';
     html += '<button type="button" class="btn btn-default active" show="step">';
     html += 'Step';
     html += '</button>';
@@ -320,12 +320,12 @@ var contexts = {
 
     /* Construct my 2-d array */
     var columnmap = {};
-    for (var key in databases.weeknctx) {
+    for (var key in contexts.weekndb) {
       if (columnmap[key] == null)
         columnmap[key] = [];
     }
 
-    for (var key in databases.lastweeknctx) {
+    for (var key in contexts.lastweekndb) {
       if (columnmap[key] == null)
         columnmap[key] = [];
     }
@@ -353,11 +353,11 @@ var contexts = {
     }
 
     /* Now fill in data */
-    for (var i = 0, len = databases.perf.length; i != len; ++i) {
-      var ctx = databases.perf[i].context;
-      var cnt = databases.perf[i].context_count;
-      var stime = databases.perf[i].starttime;
-      var etime = databases.perf[i].endtime;
+    for (var i = 0, len = contexts.perf.length; i != len; ++i) {
+      var db = contexts.perf[i].dbname;
+      var cnt = contexts.perf[i].context_count;
+      var stime = contexts.perf[i].starttime;
+      var etime = contexts.perf[i].endtime;
       var rate = 60 * cnt / (etime - stime);
 
       /* look up the value in `dates' array so we know the position to add the count to. */
@@ -367,10 +367,10 @@ var contexts = {
           break;
 
       if (j >= 0)
-        columnmap[ctx][j] += cnt;
+        columnmap[db][j] += cnt;
 
-      xvals[ctx].push(stime);
-      rowvals[ctx].push(rate);
+      xvals[db].push(stime);
+      rowvals[db].push(rate);
     }
 
     /* Transform to what C3 wants */
@@ -382,7 +382,7 @@ var contexts = {
       columns.push(columnmap[key]);
     }
 
-    databases.reqctx_chart = c3.generate({
+    contexts.reqctx_chart = c3.generate({
        bindto: '#reqctx-chart',
        padding: {
          right: 15
@@ -413,7 +413,7 @@ var contexts = {
        }
     });
 
-    databases.reqrctx_chart = c3.generate({
+    contexts.reqrctx_chart = c3.generate({
        bindto: '#reqrctx-chart',
        padding: {
          right: 15
@@ -464,28 +464,28 @@ var contexts = {
     /* Events */
 
     /* Chart styles */
-    $('#rpcbtns button').click(function(){
-      $('#rpcbtns button').removeClass('active');
+    $('#rpdbtns button').click(function(){
+      $('#rpdbtns button').removeClass('active');
       $(this).addClass('active');
       if ($(this).attr('show') != 'stacked') {
-        databases.reqctx_chart.transform($(this).attr('show'));
-        databases.reqctx_chart.groups([]);
+        contexts.reqctx_chart.transform($(this).attr('show'));
+        contexts.reqctx_chart.groups([]);
       } else {
-        databases.reqctx_chart.transform('bar');
-        databases.reqctx_chart.groups([grouparr]);
+        contexts.reqctx_chart.transform('bar');
+        contexts.reqctx_chart.groups([grouparr]);
       }
     });
 
-    $('#rrpcbtns button').click(function(){
-      $('#rrpcbtns button').removeClass('active');
+    $('#rrpdbtns button').click(function(){
+      $('#rrpdbtns button').removeClass('active');
       $(this).addClass('active');
-      databases.reqrctx_chart.transform($(this).attr('show'));
+      contexts.reqrctx_chart.transform($(this).attr('show'));
     });
 
     /* Chart ranges */
 
-    $('#rpcrngs button').click(function(){
-      $('#rpcrngs button').removeClass('active');
+    $('#rpdrngs button').click(function(){
+      $('#rpdrngs button').removeClass('active');
       $(this).addClass('active');
       var show = $(this).attr('show');
 
@@ -505,13 +505,13 @@ var contexts = {
         alert('Unknown date range.');
         return;
       }
-      databases.reqctx_chart.zoom([start, end]);
+      contexts.reqctx_chart.zoom([start, end]);
     });
 
-    $('#rpcrngs button.active').click();
+    $('#rpdrngs button.active').click();
 
-    $('#rrpcrngs button').click(function(){
-      $('#rrpcrngs button').removeClass('active');
+    $('#rrpdrngs button').click(function(){
+      $('#rrpdrngs button').removeClass('active');
       $(this).addClass('active');
       var show = $(this).attr('show');
 
@@ -519,8 +519,8 @@ var contexts = {
          with javascript's weird variable scope. */
       var currd = new Date();
       var end = currd.getTime() / 1000, start;
-      var ealiest = databases.perf[0].starttime;
-      var latest = databases.perf[databases.perf.length - 1].starttime;
+      var ealiest = contexts.perf[0].starttime;
+      var latest = contexts.perf[contexts.perf.length - 1].starttime;
 
       currd.setHours(0);
       currd.setMinutes(0);
@@ -537,10 +537,10 @@ var contexts = {
         alert('Unknown date range.');
         return;
       }
-      databases.reqrctx_chart.zoom([start > ealiest ? start : ealiest, end < latest ? end : latest]);
+      contexts.reqrctx_chart.zoom([start > ealiest ? start : ealiest, end < latest ? end : latest]);
     });
 
-    $('#rrpcrngs button.active').click();
+    $('#rrpdrngs button.active').click();
   },
 
   gen_ctx_ui: function(){

@@ -33,8 +33,6 @@
   border-right: 1px solid #FFF;
 }
 
-#websend span { font-family: monospace, Courier; }
-
 #detail-view {
   float: right;
   padding-top: 10px;
@@ -58,3 +56,5 @@
 #reqpct-chart {
   height: 320px;
 }
+
+#websend span { font-family: monospace, Courier; }
