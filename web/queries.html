@@ -1,13 +1,28 @@
-<main class="col-md-12 submodule queries-detail-view">
+<main class="submodule" id="queries-detail-view">
+  <table class="table table-hover table-bordered table-striped" id="query-list">
+    <thead>
+      <tr>
+        <th><!-- Checkbox --></th>
+        <th>SQL</th>
+        <th>Context</th>
+        <th>Database</th>
+        <th>Count</th>
+        <th>Requests/Minute</th>
+        <th>First time seen</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
 </main>
-<main class="col-md-12" id="loading-screen-queries">
+<main class="row" id="loading-screen-queries">
   <div class="pre-rhino rhino-1">
     <pre class="pre-rhino">
                     ,-.             __
                   ,'   `---.___.---'  `.
                 ,'   ,-                 `-._
               ,'    /                       \
-           ,\/     /    LOADING FRAME 1     \\
+           ,\/     /   LOADING QUERIES..    \\
        )`._)>)     |                         \\
        `>,'    _   \                  /       |\
          )      \   |   |            |        |\\
@@ -26,7 +41,7 @@
                   ,'   `---.___.---'  `.
                 ,'   ,-                 `-._
               ,'    /                       \
-           ,\/     /    LOADING FRAME 2     \\
+           ,\/     /   LOADING QUERIES...   \\
        )`._)>)     |                         \\
        `>,'    _   \                  /       |\
          )      \   |   |            |        |\|

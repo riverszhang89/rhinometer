@@ -208,7 +208,6 @@ var contexts = {
       "lengthMenu": [4, 8, 16, 32, 64]
     });
 
-
     /* Events */
     $('#dbbadgebtn-day, #dbbadgebtn-week').click(function(e){
       $('#dbbadgebtn-day, #dbbadgebtn-week').removeClass('active');

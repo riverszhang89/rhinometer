@@ -62,7 +62,6 @@ cson_value *get_context_details(struct MHD_Connection *conn, char *error, size_t
     if (rc != 0)
         goto out;
 
-    cdb2_clearbindings(hndl);
     for (i = 0; (rc = cdb2_next_record(hndl)) == CDB2_OK; ++i) {
         perf = cson_value_new_object();
         obj = cson_value_get_object(perf);
@@ -87,13 +86,12 @@ cson_value *get_context_details(struct MHD_Connection *conn, char *error, size_t
     }
 
 out:
-
     free(dbdup);
-    cdb2_close(hndl);
     if (rc != 0 && rc != CDB2_OK_DONE) {
         snprintf(error, sz, "%d: %s", rc, cdb2_errstr(hndl));
         cson_value_free(root);
         root = NULL;
     }
+    cdb2_close(hndl);
     return root;
 }

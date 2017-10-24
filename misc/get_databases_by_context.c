@@ -67,11 +67,11 @@ cson_value *get_databases_by_context(struct MHD_Connection *conn, char* error, s
     }
 
 out:
-    cdb2_close(hndl);
     if (rc != 0 && rc != CDB2_OK_DONE) {
         snprintf(error, sz, "%d: %s", rc, cdb2_errstr(hndl));
         cson_value_free(root);
         root = NULL;
     }
+    cdb2_close(hndl);
     return root;
 }

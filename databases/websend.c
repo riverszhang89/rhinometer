@@ -57,11 +57,11 @@ cson_value *websend(struct MHD_Connection *conn, char *error, size_t sz)
     }
 
 out:
-    cdb2_close(hndl);
     if (rc != 0 && rc != CDB2_OK_DONE) {
         snprintf(error, sz, "%d: %s", rc, cdb2_errstr(hndl));
         cson_value_free(root);
         root = NULL;
     }
+    cdb2_close(hndl);
     return root;
 }

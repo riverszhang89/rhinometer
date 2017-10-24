@@ -28,3 +28,4 @@ cson_value *get_database_list(struct MHD_Connection *, char *, size_t);
 cson_value *get_database_details(struct MHD_Connection *, char *, size_t);
 cson_value *websend(struct MHD_Connection *, char *, size_t);
 cson_value *get_context_details(struct MHD_Connection *, char *, size_t);
+cson_value *get_query_list(struct MHD_Connection *, char *, size_t);
