@@ -107,10 +107,6 @@ $('#placeholder').css('margin-top', $('#tabs').height() + 10 + 'px');
 /* ================= TABS ================ */
 var submodule;
 $('#tabs>li>a').click(function(e){
-  /* Can't proceed if not clickable. */
-  if (!clickable)
-    return true;
-
   /* Can't proceed if no keyword. */
   if ($('#search_keyword').val() == '') {
     alert('Enter a keyword to begin.');
@@ -124,6 +120,10 @@ $('#tabs>li>a').click(function(e){
     $('#search_result_dropdown').parent().find('div>button').click();
     return false;
   }
+
+  /* Can't proceed if not clickable. */
+  if (!clickable)
+    return true;
 
   $('#placeholder').html('');
   loading.stop();
