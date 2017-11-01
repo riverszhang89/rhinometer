@@ -24,6 +24,7 @@ queries = {
     $('#query-list').DataTable({
       processing: true,
       serverSide: true,
+      scrollX: true,
       ajax: {
         url: 'get_query_list?dbs=' + local_databases + '&ctxs=' + local_ctxs,
         dataSrc: function(data){
@@ -35,15 +36,49 @@ queries = {
             var rawdata = data.raw[i];
             rv.push([
               '',
-              rawdata.sql,
-              rawdata.context,
-              rawdata.dbname,
+              rawdata.sql.length > 30 ? rawdata.sql.substr(0, 27) + '...' : rawdata.sql,
               rawdata.count,
-              (rawdata.count / rawdata.duration * 60).toFixed(2),
+
+              rawdata.minrtm,
+              (rawdata.totrtm / rawdata.count).toFixed(2),
+              rawdata.maxrtm,
+
+
+              rawdata.mincost,
+              (rawdata.totcost / rawdata.count).toFixed(2),
+              rawdata.maxcost,
+
+              rawdata.minrows,
+              (rawdata.totrows / rawdata.count).toFixed(2),
+              rawdata.maxrows,
+
+              rawdata.minlkws,
+              (rawdata.totlkws / rawdata.count).toFixed(2),
+              rawdata.maxlkws,
+
+              rawdata.minlkwtm,
+              (rawdata.totlkwtm / rawdata.count).toFixed(2),
+              rawdata.maxlkwtm,
+
+              rawdata.minrds,
+              (rawdata.totrds / rawdata.count).toFixed(2),
+              rawdata.maxrds,
+
+              rawdata.minrdtm,
+              (rawdata.totrdtm / rawdata.count).toFixed(2),
+              rawdata.maxrdtm,
+
+              rawdata.minwrs,
+              (rawdata.totwrs / rawdata.count).toFixed(2),
+              rawdata.maxwrs,
+
+              rawdata.minwrtm,
+              (rawdata.totwrtm / rawdata.count).toFixed(2),
+              rawdata.maxwrtm,
+
               new Date(rawdata.firstseentime * 1000).toISOString().substring(0, 19)
             ]);
           }
-
           return rv;
         },
         data: function(data){

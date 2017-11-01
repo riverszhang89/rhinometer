@@ -2,3 +2,8 @@
   margin-left: 15px;
   padding-top: 15px;
 }
+
+.dataTables_wrapper {
+  /* Table too large.. Make font size a bit smaller.. */
+  font-size: 12px;
+}

@@ -70,14 +70,23 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
                   "       SUM(q.fingerprint_count) as count,"
                   "       q.dbname,"
                   "       q.context,"
-                  "       SUM(CAST(end AS INTEGER) - CAST(start AS INTEGER)) as duration,"
                   "       CAST(qt.first_seen AS INTEGER) AS firstseentime," 
-                  "       qt.sql ";
+                  "       qt.sql,"
+                  "       SUM(avgcost * fingerprint_count) AS totcost, MIN(mincost) AS mincost, MAX(maxcost) AS maxcost,"
+                  "       SUM(avgrows * fingerprint_count) AS totrows, MIN(minrows) AS minrows, MAX(maxrows) AS maxrows,"
+                  "       SUM(avgrtm * fingerprint_count) AS totrtm, MIN(minrtm) AS minrtm, MAX(maxrtm) AS maxrtm,"
+                  "       SUM(avglkws * fingerprint_count) AS totlkws, MIN(minlkws) AS minlkws, MAX(maxlkws) AS maxlkws,"
+                  "       SUM(avglkwtm * fingerprint_count) AS totlkwtm, MIN(minlkwtm) AS minlkwtm, MAX(maxlkwtm) AS maxlkwtm,"
+                  "       SUM(avgrds * fingerprint_count) AS totrds, MIN(minrds) AS minrds, MAX(maxrds) AS maxrds,"
+                  "       SUM(avgrdtm * fingerprint_count) AS totrdtm, MIN(minrdtm) AS minrdtm, MAX(maxrdtm) AS maxrdtm,"
+                  "       SUM(avgwrs * fingerprint_count) AS totwrs, MIN(minwrs) AS minwrs, MAX(maxwrs) AS maxwrs,"
+                  "       SUM(avgwrtm * fingerprint_count) AS totwrtm, MIN(minwrtm) AS minwrtm, MAX(maxwrtm) AS maxwrtm "
+                  ;
 
     char where[4096];
 
     wrw = snprintf(where, sizeof(where),
-                   "FROM  queries q JOIN querytypes qt "
+                   "FROM queries q JOIN querytypes qt "
                    "ON q.fingerprint = qt.fingerprint "
                    "WHERE "
                    "(now() - q.start) <= CAST(14 AS DAY) "
@@ -106,7 +115,7 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
 
     /* Get count of all records */
     snprintf(query, sizeof(query), "SELECT COUNT(*) FROM (SELECT q.rowid %s %s",
-             where, ") GROUP BY q.fingerprint, q.dbname, q.context)");
+             where, ") GROUP BY q.fingerprint)");
     puts(query);
 
     rc = cdb2_run_statement(hndl, query);
@@ -120,7 +129,7 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
     /* Get count of filtered records */
     if (q != NULL) {
         snprintf(query, sizeof(query), "SELECT COUNT(*) FROM (SELECT q.rowid %s"
-                ") AND sql LIKE '%s' GROUP BY q.fingerprint, q.dbname, q.context)"
+                ") AND sql LIKE '%s' GROUP BY q.fingerprint)"
                 , where, q);
         rc = cdb2_run_statement(hndl, query);
         if (rc != 0)
@@ -134,13 +143,12 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
     /* Get records */
     if (q != NULL)
         snprintf(query, sizeof(query),
-                "%s %s) AND sql LIKE '%s' GROUP BY q.fingerprint, q.dbname, q.context LIMIT %d OFFSET %d",
+                "%s %s) AND sql LIKE '%s' GROUP BY q.fingerprint LIMIT %d OFFSET %d",
                 SELECT_COLUMNS, where, q, atoi(length), atoi(start));
     else
         snprintf(query, sizeof(query), "%s %s %s LIMIT %d OFFSET %d", SELECT_COLUMNS, where,
-                ") GROUP BY q.fingerprint, q.dbname, q.context", atoi(length), atoi(start));
+                ") GROUP BY q.fingerprint", atoi(length), atoi(start));
 
-    puts(query);
     rc = cdb2_run_statement(hndl, query);
     if (rc != 0)
         goto out;
@@ -151,6 +159,10 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
 
         for (j = 0; j != cdb2_numcolumns(hndl); ++j) {
             switch (cdb2_column_type(hndl, j)) {
+            case CDB2_REAL:
+                cson_object_set(obj, cdb2_column_name(hndl, j),
+                        cson_value_new_double(*(double *)cdb2_column_value(hndl, j)));
+                break;
             case CDB2_INTEGER:
                 cson_object_set(obj, cdb2_column_name(hndl, j),
                         cson_value_new_integer(*(long long *)cdb2_column_value(hndl, j)));

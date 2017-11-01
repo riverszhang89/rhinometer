@@ -204,8 +204,9 @@ var contexts = {
 
     /* DataTables */
     $('#dbtbl-day, #dbtbl-week').DataTable({
-      "pageLength": 4,
-      "lengthMenu": [4, 8, 16, 32, 64]
+      scrollY: "160px",
+      scrollCollapse: true,
+      paging: false
     });
 
     /* Events */
