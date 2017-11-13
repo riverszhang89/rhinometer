@@ -24,7 +24,7 @@ queries = {
     $('#query-list').DataTable({
       processing: true,
       serverSide: true,
-      scrollX: true,
+      //scrollX: true,
       ajax: {
         url: 'get_query_list?dbs=' + local_databases + '&ctxs=' + local_ctxs,
         dataSrc: function(data){

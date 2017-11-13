@@ -36,21 +36,21 @@ util = {
     if (inum < 1000)
       return inum;
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 'K';
+      return inum.toFixed(2) + 'K';
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 'M';
+      return inum.toFixed(2) + 'M';
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 'B';
+      return inum.toFixed(2) + 'B';
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 'T';
+      return inum.toFixed(2) + 'T';
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 'q';
+      return inum.toFixed(2) + 'q';
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 'Q';
+      return inum.toFixed(2) + 'Q';
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 's';
+      return inum.toFixed(2) + 's';
     if ((inum /= 1000) < 1000)
-      return inum.toFixed(3) + 'S';
+      return inum.toFixed(2) + 'S';
 
     return '42';
   },

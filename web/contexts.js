@@ -592,12 +592,10 @@ var contexts = {
     /* We don't need to contact backend. Just insert contexts 
        into the panel. */
 
-    /* Not sure if contexts are sorted. sort the list anyways. */
-    if (local_ctxs instanceof Array) {
-      local_ctxs.sort();
-    } else {
-      local_ctxs = [local_ctxs];
-    }
+    /* Make an array and sort */
+    if (!$.isArray(local_ctxs))
+      local_ctxs = local_ctxs.split(',');
+    local_ctxs.sort();
 
     var tbody = '';
     for (var i = 0, len = local_ctxs.length; i != len; ++i) {
