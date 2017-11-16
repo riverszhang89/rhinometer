@@ -24,10 +24,11 @@ queries = {
     $('#query-list').DataTable({
       processing: true,
       serverSide: true,
-      //scrollX: true,
+      scrollX: true,
       ajax: {
         url: 'get_query_list?dbs=' + local_databases + '&ctxs=' + local_ctxs,
         dataSrc: function(data){
+          /* Preprocess data. return an array of rows. */
           var rv = [];
           if (data.recordsFiltered == null)
             data.recordsFiltered = data.recordsTotal;
@@ -40,40 +41,40 @@ queries = {
               rawdata.count,
 
               rawdata.minrtm,
-              (rawdata.totrtm / rawdata.count).toFixed(2),
+              rawdata.avgrtm.toFixed(2),
               rawdata.maxrtm,
 
 
               rawdata.mincost,
-              (rawdata.totcost / rawdata.count).toFixed(2),
+              rawdata.avgcost.toFixed(2),
               rawdata.maxcost,
 
               rawdata.minrows,
-              (rawdata.totrows / rawdata.count).toFixed(2),
+              rawdata.avgrows.toFixed(2),
               rawdata.maxrows,
 
               rawdata.minlkws,
-              (rawdata.totlkws / rawdata.count).toFixed(2),
+              rawdata.avglkws.toFixed(2),
               rawdata.maxlkws,
 
               rawdata.minlkwtm,
-              (rawdata.totlkwtm / rawdata.count).toFixed(2),
+              rawdata.avglkwtm.toFixed(2),
               rawdata.maxlkwtm,
 
               rawdata.minrds,
-              (rawdata.totrds / rawdata.count).toFixed(2),
+              rawdata.avgrds.toFixed(2),
               rawdata.maxrds,
 
               rawdata.minrdtm,
-              (rawdata.totrdtm / rawdata.count).toFixed(2),
+              rawdata.avgrdtm.toFixed(2),
               rawdata.maxrdtm,
 
               rawdata.minwrs,
-              (rawdata.totwrs / rawdata.count).toFixed(2),
+              rawdata.avgwrs.toFixed(2),
               rawdata.maxwrs,
 
               rawdata.minwrtm,
-              (rawdata.totwrtm / rawdata.count).toFixed(2),
+              rawdata.avgwrtm.toFixed(2),
               rawdata.maxwrtm,
 
               new Date(rawdata.firstseentime * 1000).toISOString().substring(0, 19)
@@ -84,6 +85,10 @@ queries = {
         data: function(data){
           if (data.search.value != null && data.search.value != '')
             data.q = '%' + data.search.value + '%';
+          /* We don't need them. In fact sending them to server sometimes
+             causes server to run out of memory :( */
+          data.columns = null;
+          data.order = JSON.stringify(data.order);
         }
       },
       columnDefs: [
@@ -92,22 +97,6 @@ queries = {
           className: 'select-checkbox',
           searchable: false,
           targets: 0
-        },
-        {
-          searchable: false,
-          targets: 2
-        },
-        {
-          searchable: false,
-          targets: 3
-        },
-        {
-          searchable: false,
-          targets: 4
-        },
-        {
-          searchable: false,
-          targets: 5
         }
       ],
       select: {

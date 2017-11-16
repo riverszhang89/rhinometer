@@ -3,19 +3,19 @@
 cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
 {
     cdb2_hndl_tp *hndl = NULL;
-    const char *ctxs, *row, *dbs;
+    const char *q, *ctxs, *row, *dbs;
     char *dbdup = NULL, *ctxdup = NULL;
     char *last, *tok;
-    int rc, i, j;
-    char query[4096];
-    int wrw;
+    int rc, i, j, len;
+    char query[4096], orderby[1024], where[4096];
+    int wrw, wrob;
 
     cson_value *root, *arrv, *perf;
     cson_array *arr;
     cson_object *obj;
     root = NULL;
 
-    /* DataTables precious */
+    /* DataTables precious { */
     const char *draw = MHD_lookup_connection_value(conn, MHD_GET_ARGUMENT_KIND, "draw");
     if (draw == NULL) {
         snprintf(error, sz, "Missing argument `%s'", "draw");
@@ -34,7 +34,18 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
         return NULL;
     }
 
-    const char *q = MHD_lookup_connection_value(conn, MHD_GET_ARGUMENT_KIND, "q");
+    /* This is a JSON array. Parse it. */
+    const char *order = MHD_lookup_connection_value(conn, MHD_GET_ARGUMENT_KIND, "order");
+    cson_value *cson;
+    cson_parse_info info;
+    cson_parse_opt opt = {.maxDepth = 32, .allowComments = 0};
+    rc = cson_parse_string(&cson, order, strlen(order), &opt, &info);
+    if (rc != 0)
+        return NULL;
+    cson_array *csonarr = cson_value_get_array(cson);
+    /* } DataTables precious */
+
+    q = MHD_lookup_connection_value(conn, MHD_GET_ARGUMENT_KIND, "q");
 
     ctxs = MHD_lookup_connection_value(conn, MHD_GET_ARGUMENT_KIND, "ctxs");
     if (ctxs == NULL) {
@@ -72,24 +83,23 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
                   "       q.context,"
                   "       CAST(qt.first_seen AS INTEGER) AS firstseentime," 
                   "       qt.sql,"
-                  "       SUM(avgcost * fingerprint_count) AS totcost, MIN(mincost) AS mincost, MAX(maxcost) AS maxcost,"
-                  "       SUM(avgrows * fingerprint_count) AS totrows, MIN(minrows) AS minrows, MAX(maxrows) AS maxrows,"
-                  "       SUM(avgrtm * fingerprint_count) AS totrtm, MIN(minrtm) AS minrtm, MAX(maxrtm) AS maxrtm,"
-                  "       SUM(avglkws * fingerprint_count) AS totlkws, MIN(minlkws) AS minlkws, MAX(maxlkws) AS maxlkws,"
-                  "       SUM(avglkwtm * fingerprint_count) AS totlkwtm, MIN(minlkwtm) AS minlkwtm, MAX(maxlkwtm) AS maxlkwtm,"
-                  "       SUM(avgrds * fingerprint_count) AS totrds, MIN(minrds) AS minrds, MAX(maxrds) AS maxrds,"
-                  "       SUM(avgrdtm * fingerprint_count) AS totrdtm, MIN(minrdtm) AS minrdtm, MAX(maxrdtm) AS maxrdtm,"
-                  "       SUM(avgwrs * fingerprint_count) AS totwrs, MIN(minwrs) AS minwrs, MAX(maxwrs) AS maxwrs,"
-                  "       SUM(avgwrtm * fingerprint_count) AS totwrtm, MIN(minwrtm) AS minwrtm, MAX(maxwrtm) AS maxwrtm "
+                  "       AVG(avgcost) AS avgcost, MIN(mincost) AS mincost, MAX(maxcost) AS maxcost,"
+                  "       AVG(avgrows) AS avgrows, MIN(minrows) AS minrows, MAX(maxrows) AS maxrows,"
+                  "       AVG(avgrtm) AS avgrtm, MIN(minrtm) AS minrtm, MAX(maxrtm) AS maxrtm,"
+                  "       AVG(avglkws) AS avglkws, MIN(minlkws) AS minlkws, MAX(maxlkws) AS maxlkws,"
+                  "       AVG(avglkwtm) AS avglkwtm, MIN(minlkwtm) AS minlkwtm, MAX(maxlkwtm) AS maxlkwtm,"
+                  "       AVG(avgrds) AS avgrds, MIN(minrds) AS minrds, MAX(maxrds) AS maxrds,"
+                  "       AVG(avgrdtm) AS avgrdtm, MIN(minrdtm) AS minrdtm, MAX(maxrdtm) AS maxrdtm,"
+                  "       AVG(avgwrs) AS avgwrs, MIN(minwrs) AS minwrs, MAX(maxwrs) AS maxwrs,"
+                  "       AVG(avgwrtm) AS avgwrtm, MIN(minwrtm) AS minwrtm, MAX(maxwrtm) AS maxwrtm "
                   ;
 
-    char where[4096];
 
     wrw = snprintf(where, sizeof(where),
                    "FROM queries q JOIN querytypes qt "
                    "ON q.fingerprint = qt.fingerprint "
                    "WHERE "
-                   "(now() - q.start) <= CAST(14 AS DAY) "
+                   "(now() - q.start) <= CAST(30 AS DAY) "
                    "AND "
                    "q.dbname IN (\"\"");
 
@@ -116,7 +126,6 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
     /* Get count of all records */
     snprintf(query, sizeof(query), "SELECT COUNT(*) FROM (SELECT q.rowid %s %s",
              where, ") GROUP BY q.fingerprint)");
-    puts(query);
 
     rc = cdb2_run_statement(hndl, query);
     if (rc != 0)
@@ -140,15 +149,188 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
                     cson_value_new_integer(*(long long *)cdb2_column_value(hndl, 0)));
     }
 
-    /* Get records */
+
+    /* 
+       Convert json order to order by.
+       1 - query
+       2 - count
+
+       3 - min runtime
+       4 - avg runtime
+       5 - max runtime
+
+       6 - min cost
+       7 - avg cost
+       8 - max cost
+
+       9  - min rows
+       10 - avg rows
+       11 - max rows
+
+       12 - min lockwaits
+       13 - avg lockwaits
+       14 - max lockwaits
+
+       15 - min lockwait time
+       16 - avg lockwait time
+       17 - max lockwait time
+
+       18 - min page read
+       19 - avg page read
+       20 - max page read
+
+       21 - min page read time
+       22 - avg page read time
+       23 - max page read time
+
+       24 - min page write
+       25 - avg page write
+       26 - max page write
+
+       27 - min page write time
+       28 - avg page write time
+       29 - max page write time
+
+       30 - first seen time
+
+       (Mind blown!)
+     */
+    int hasorderby = 0;
+    orderby[0] = '\0';
+    for (i = 0, len = cson_array_length_get(csonarr), wrob = 0; i != len; ++i) {
+        cson_value *v = cson_array_get(csonarr, i);
+        if (!cson_value_is_object(v))
+            continue;
+
+        cson_object *obj;
+        cson_value_fetch_object(v, &obj);
+
+        cson_value *colv = cson_object_get(obj, "column");
+        if (colv == NULL)
+            continue;
+        int col = (int)cson_value_get_integer(colv);
+        if (col <= 0)
+            continue;
+
+        cson_value *dirv = cson_object_get(obj, "dir");
+        if (dirv == NULL)
+            continue;
+        const char *dir = cson_string_cstr(cson_value_get_string(dirv));
+
+        if (hasorderby == 0) {
+            wrob += snprintf(orderby + wrob, sizeof(orderby) - wrob, " ORDER BY ");
+            hasorderby = 1;
+        }
+
+        const char *columnname = NULL;
+        switch (col) {
+            case 1:
+                columnname = "qt.sql";
+                break;
+            case 2:
+                columnname = "count";
+                break;
+            case 3:
+                columnname = "minrtm";
+                break;
+            case 4:
+                columnname = "avgrtm";
+                break;
+            case 5:
+                columnname = "maxrtm";
+                break;
+            case 6:
+                columnname = "mincost";
+                break;
+            case 7:
+                columnname = "avgcost";
+                break;
+            case 8:
+                columnname = "maxcost";
+                break;
+            case 9:
+                columnname = "minrows";
+                break;
+            case 10:
+                columnname = "avgrows";
+                break;
+            case 11:
+                columnname = "maxrows";
+                break;
+            case 12:
+                columnname = "minlkws";
+                break;
+            case 13:
+                columnname = "avglkws";
+                break;
+            case 14:
+                columnname = "maxlkws";
+                break;
+            case 15:
+                columnname = "minlkwtm";
+                break;
+            case 16:
+                columnname = "avglkwtm";
+                break;
+            case 17:
+                columnname = "maxlkwtm";
+                break;
+            case 18:
+                columnname = "minrds";
+                break;
+            case 19:
+                columnname = "avgrds";
+                break;
+            case 20:
+                columnname = "maxrds";
+                break;
+            case 21:
+                columnname = "minrdtm";
+                break;
+            case 22:
+                columnname = "avgrdtm";
+                break;
+            case 23:
+                columnname = "maxrdtm";
+                break;
+            case 24:
+                columnname = "minwrs";
+                break;
+            case 25:
+                columnname = "avgwrs";
+                break;
+            case 26:
+                columnname = "maxwrs";
+                break;
+            case 27:
+                columnname = "minwrtm";
+                break;
+            case 28:
+                columnname = "avgwrtm";
+                break;
+            case 29:
+                columnname = "maxwrtm";
+                break;
+            case 30:
+                columnname = "firstseentime";
+                break;
+        }
+
+        if (columnname != NULL) {
+            wrob += snprintf(orderby + wrob, sizeof(orderby) - wrob,
+                    (i < len - 1) ? " %s %s, " : " %s %s ", columnname, dir);
+        }
+    }
+
     if (q != NULL)
         snprintf(query, sizeof(query),
-                "%s %s) AND sql LIKE '%s' GROUP BY q.fingerprint LIMIT %d OFFSET %d",
-                SELECT_COLUMNS, where, q, atoi(length), atoi(start));
+                "%s %s) AND sql LIKE '%s' GROUP BY q.fingerprint %s LIMIT %d OFFSET %d",
+                SELECT_COLUMNS, where, q, orderby, atoi(length), atoi(start));
     else
-        snprintf(query, sizeof(query), "%s %s %s LIMIT %d OFFSET %d", SELECT_COLUMNS, where,
-                ") GROUP BY q.fingerprint", atoi(length), atoi(start));
+        snprintf(query, sizeof(query), "%s %s %s %s LIMIT %d OFFSET %d", SELECT_COLUMNS, where,
+                ") GROUP BY q.fingerprint", orderby, atoi(length), atoi(start));
 
+    puts(query);
     rc = cdb2_run_statement(hndl, query);
     if (rc != 0)
         goto out;

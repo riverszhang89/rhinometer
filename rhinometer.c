@@ -53,6 +53,13 @@ serve_static_requests(struct MHD_Connection *conn, const char *fn, const char *m
     return resp;
 }
 
+static int print_out_key(void *cls, enum MHD_ValueKind kind, const char *key,
+        const char *value)
+{
+    printf ("%s: %s\n", key, value);
+    return MHD_YES;
+}
+
 static int answer_to_connection(void *cls, struct MHD_Connection *connection,
                                 const char *url, const char *method,
                                 const char *version, const char *upload_data,
@@ -68,6 +75,8 @@ static int answer_to_connection(void *cls, struct MHD_Connection *connection,
     printf("URL %s\n", url);
 
     /* Serve request */
+
+    MHD_get_connection_values(connection, MHD_POSTDATA_KIND, print_out_key, NULL);
 
     /* =================== INDEX PAGE =================== */
     if (url[strlen(url) - 1] == '/') {
