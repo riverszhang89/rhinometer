@@ -26,7 +26,8 @@ cson_value *get_databases_by_context(struct MHD_Connection *conn, char* error, s
         return NULL;
 
     snprintf(query, sizeof(query),
-             "SELECT DISTINCT(dbname) FROM contexts WHERE context LIKE '%s'",
+             "SELECT DISTINCT(dbname) FROM contexts WHERE context LIKE '%s' AND "
+             "(now() - start) <= CAST(14 AS DAY)",
              q);
 
     printf("query is %s\n", query);

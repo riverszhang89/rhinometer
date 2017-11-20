@@ -99,7 +99,7 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
                    "FROM queries q JOIN querytypes qt "
                    "ON q.fingerprint = qt.fingerprint "
                    "WHERE "
-                   "(now() - q.start) <= CAST(30 AS DAY) "
+                   "(now() - q.start) <= CAST(14 AS DAY) "
                    "AND "
                    "q.dbname IN (\"\"");
 
@@ -352,7 +352,7 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
             case CDB2_CSTRING:
                 row = cdb2_column_value(hndl, j);
                 cson_object_set(obj, cdb2_column_name(hndl, j),
-                        cson_value_new_string(row, strlen(row)));
+                        (row == NULL) ? cson_value_new_integer(0) : cson_value_new_string(row, strlen(row)));
                 break;
             default:
                 fprintf(stderr, "Unexpected cdb2 type: %d.\n", cdb2_column_type(hndl, j));
