@@ -99,6 +99,9 @@ static int answer_to_connection(void *cls, struct MHD_Connection *connection,
     } else if (strcmp(datasource, "get_query_list") == 0) {
         response = serve_dynamic_requests(get_query_list, connection, error, sizeof(error));
         ret = (response == NULL) ? 500 : 200;
+    } else if (strcmp(datasource, "get_query_rate") == 0) {
+        response = serve_dynamic_requests(get_query_rate, connection, error, sizeof(error));
+        ret = (response == NULL) ? 500 : 200;
     /* =================== STATIC =================== */
     } else if (strlen(datasource) > 3 && strcasecmp(&datasource[strlen(datasource) - 3], ".js") == 0) {
         response = serve_static_requests(connection, datasource, "application/javascript");
@@ -157,10 +160,22 @@ int main ()
 {
     struct MHD_Daemon *daemon;
     char cmd;
+    char *zport;
+    short iport;
 
     ignore_sigpipe();
 
-    daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG | MHD_USE_EPOLL_LINUX_ONLY, PORT, NULL, NULL,
+    /* env var to specify the port number */
+    zport = getenv("PORT");
+    if (zport == NULL)
+        iport = PORT;
+    else {
+        iport = atoi(zport);
+        if (iport <= 0 || iport >= 65535)
+            iport = PORT;
+    }
+
+    daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_DEBUG | MHD_USE_EPOLL_LINUX_ONLY, iport, NULL, NULL,
             &answer_to_connection, NULL, MHD_OPTION_END);
     if (daemon == NULL)
         return 1;

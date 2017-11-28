@@ -7,6 +7,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <microhttpd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -29,3 +30,4 @@ cson_value *get_database_details(struct MHD_Connection *, char *, size_t);
 cson_value *websend(struct MHD_Connection *, char *, size_t);
 cson_value *get_context_details(struct MHD_Connection *, char *, size_t);
 cson_value *get_query_list(struct MHD_Connection *, char *, size_t);
+cson_value *get_query_rate(struct MHD_Connection *, char *, size_t);

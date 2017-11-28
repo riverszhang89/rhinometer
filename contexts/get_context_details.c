@@ -44,7 +44,8 @@ cson_value *get_context_details(struct MHD_Connection *conn, char *error, size_t
 
     wr = snprintf(query, sizeof(query), "SELECT dbname, context_count, "
             "CAST(start AS INTEGER) AS starttime, CAST(end AS INTEGER) AS endtime "
-            "FROM contexts WHERE (now() - start) <= CAST(14 AS DAY) AND dbname IN (\"\"");
+            "FROM contexts WHERE (now() - start) <= CAST(14 AS DAY) "
+            "AND start <= now() AND dbname IN (\"\"");
     last = tok = NULL;
     tok = strtok_r(dbdup, ",", &last);
     for (i = 1; tok != NULL; ++i) {

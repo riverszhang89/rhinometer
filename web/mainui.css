@@ -1,3 +1,14 @@
+* { font-family: 'Open Sans', sans-serif; }
+html, body { height: 100%; }
+#tabs { padding-top: 10px; position: fixed; z-index: 999; background-color: #FFF; }
+.pre-rhino { border: 0; background-color: transparent; text-align: center; }
+.pre-rhino pre { border: 0; background-color: transparent; display: inline-block; text-align: left; padding-top: 150px; }
+.rhino-1, .rhino-2 { display: none; }
+#placeholder { display: none; margin-top: 41px; margin-left: -15px; }
+.table-bordered-clear-right { border-right: 0px }
+.clear-padl { padding-left: 0px; }
+.clear-padr { padding-right: 0px; }
+
 .c3graph { height: 300px; }
 
 .well-dbcard hr {

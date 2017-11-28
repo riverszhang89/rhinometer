@@ -76,7 +76,7 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
     cson_object_set(obj, "raw", arrv);
     arr = cson_value_get_array(arrv);
 
-    const char *SELECT_COLUMNS = 
+    const char *SELECT_COLUMNS =
                   "SELECT q.fingerprint,"
                   "       SUM(q.fingerprint_count) as count,"
                   "       q.dbname,"
@@ -100,7 +100,7 @@ cson_value *get_query_list(struct MHD_Connection *conn, char *error, size_t sz)
                    "ON q.fingerprint = qt.fingerprint "
                    "WHERE "
                    "(now() - q.start) <= CAST(14 AS DAY) "
-                   "AND "
+                   "AND start <= now() AND "
                    "q.dbname IN (\"\"");
 
     /* Bind databases */

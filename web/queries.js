@@ -1,32 +1,60 @@
 queries = {
   detached_rhino: null,
 
+  /* One-time initialization data */
+  dbs: null,
+  ctxs: null,
+
   clean_slate: function(){
   },
 
-  load_list: function(){
-    /* Show loading animation. */
-    loading.stop();
-    $('#placeholder .submodule').hide();
-    loading.start('#loading-screen-queries');
-
-    var local_databases, local_ctxs;
-    if ($('#search_keyword').attr('t') == 1) {
-      local_databases = $('#search_result_dropdown').val();
-      local_ctxs = $('#search_keyword').attr('q');
-    } else {
-      local_databases = $('#search_keyword').attr('q');
-      local_ctxs = $('#search_result_dropdown').val();
+  /* Load query rate */
+  load_query_rate: function(){
+    var q = queries;
+    if (q.dbs == null || q.ctxs == null) {
+      if ($('#search_keyword').attr('t') == 1) {
+        q.dbs = $('#search_result_dropdown').val();
+        q.ctxs = $('#search_keyword').attr('q');
+      } else {
+        q.dbs = $('#search_keyword').attr('q');
+        q.ctxs = $('#search_result_dropdown').val();
+      }
     }
 
-    console.log('Loading queries (ctx=' + local_ctxs + ', db=' + local_databases + ')');
+    console.log('Loading time series query data (ctx=' + q.ctxs + ', db=' + q.dbs + ')');
+
+    $.ajax({
+       url: 'get_query_rate',
+       data: 'ctxs=' + q.ctxs + '&dbs=' + q.dbs
+    }).fail(function(xhr){
+      alert(xhr.responseText);
+    }).done(function(data){
+
+      console.log('Done parsing.');
+    });
+  },
+
+  /* Load query list */
+  load_list: function(){
+    var q = queries;
+    if (q.dbs == null || q.ctxs == null) {
+      if ($('#search_keyword').attr('t') == 1) {
+        q.dbs = $('#search_result_dropdown').val();
+        q.ctxs = $('#search_keyword').attr('q');
+      } else {
+        q.dbs = $('#search_keyword').attr('q');
+        q.ctxs = $('#search_result_dropdown').val();
+      }
+    }
+
+    console.log('Loading queries (ctx=' + q.ctxs + ', db=' + q.dbs + ')');
 
     $('#query-list').DataTable({
       processing: true,
       serverSide: true,
       scrollX: true,
       ajax: {
-        url: 'get_query_list?dbs=' + local_databases + '&ctxs=' + local_ctxs,
+        url: 'get_query_list?dbs=' + q.dbs + '&ctxs=' + q.ctxs,
         dataSrc: function(data){
           /* Preprocess data. return an array of rows. */
           var rv = [];
@@ -37,13 +65,12 @@ queries = {
             var rawdata = data.raw[i];
             rv.push([
               '',
-              rawdata.sql.length > 30 ? rawdata.sql.substr(0, 27) + '...' : rawdata.sql,
+              rawdata.sql.length > 30 ? '<span title="' + rawdata.sql + '">' + rawdata.sql.substr(0, 27) + '...</span>' : rawdata.sql,
               rawdata.count,
 
               rawdata.minrtm,
               rawdata.avgrtm.toFixed(2),
               rawdata.maxrtm,
-
 
               rawdata.mincost,
               rawdata.avgcost.toFixed(2),
@@ -106,9 +133,21 @@ queries = {
       order: [[1, 'asc']]
     });
 
+  },
+
+  /* Load first screen */
+  load: function(){
+    /* Show loading animation. */
+    loading.stop();
+    $('#placeholder .submodule').hide();
+    loading.start('#loading-screen-queries');
+
+    queries.load_query_rate();
+    queries.load_list();
+
     loading.stop();
     $('#placeholder .submodule').show();
   }
 }
 
-queries.load_list();
+queries.load();

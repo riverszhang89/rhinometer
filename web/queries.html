@@ -1,4 +1,18 @@
 <main class="submodule" id="queries-detail-view">
+  <div class="col-md-12 clear-padl clear-padr">
+    <div class="well well-sm well-dbcard">
+      <div class="content" id="query-time-view">
+        <h5 class="caption">Query Rate
+          <div id="qrrngs" class="btn-group btn-group-xs pull-right" role="group" aria-label="...">
+            <button type="button" class="btn btn-default active" show="today">Today</button>
+            <button type="button" class="btn btn-default" show="7day">7-Day</button>
+            <button type="button" class="btn btn-default" show="14day">14-Day</button>
+          </div> <!-- button group -->
+        </h5>
+        <div class="c3graph" id="qr-chart"></div> <!-- chart -->
+      </div> <!-- query-time-view -->
+    </div>
+  </div> <!-- query time chart -->
   <table class="table table-hover table-bordered table-striped" id="query-list" width="100%">
     <thead>
       <tr>
@@ -48,7 +62,7 @@
     </thead>
     <tbody>
     </tbody>
-  </table>
+  </table> <!-- query table -->
 </main>
 <main class="row" id="loading-screen-queries">
   <div class="pre-rhino rhino-1">

@@ -203,7 +203,8 @@ var databases = {
       overview_html += '<tr><th>' + (i < len1 ? (i + 1) : '') + '</th><td>' + cell1 + '</td></th>';
       overview_html += '<th>' + (i < len2 ? (i + 1) : '') + '</th><td>' + cell2 + '</td></th></tr>';
     }
-    overview_html += '</tbody></table>'; /* Daily table } */
+    overview_html += '</tbody></table>';
+    /* Daily table } */
 
     /* { Weekly table */
     overview_html += '<table class="table table-hover table-bordered" id="ctxtbl-week">';

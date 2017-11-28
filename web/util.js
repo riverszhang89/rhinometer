@@ -84,7 +84,7 @@ util = {
     var ret = '';
     ret += '<div class="c3graph" id="';
     ret += c3id;
-    ret += '"></div></div>';
+    ret += '"></div>';
     return ret;
   },
   

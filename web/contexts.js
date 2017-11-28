@@ -152,7 +152,8 @@ var contexts = {
       html += '<tr><th>' + (i < len1 ? (i + 1) : '') + '</th><td>' + cell1 + '</td></th>';
       html += '<th>' + (i < len2 ? (i + 1) : '') + '</th><td>' + cell2 + '</td></th></tr>';
     }
-    html += '</tbody></table>'; /* Daily table } */
+    html += '</tbody></table>';
+    /* Daily table } */
 
     /* { Weekly table */
     html += '<table class="table table-hover table-bordered" id="dbtbl-week">';
